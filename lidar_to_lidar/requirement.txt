@@ -1,0 +1,7 @@
+PyYAML
+pycryptodomex
+gnupg
+rospkg
+tqdm
+open3d
+numpy<2.0.0

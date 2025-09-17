@@ -1,0 +1,2 @@
+/usr/bin/ar qc ../lib/libLidarToLidar.a  CMakeFiles/LidarToLidar.dir/src/calibration.cpp.o CMakeFiles/LidarToLidar.dir/src/registration_icp.cpp.o CMakeFiles/LidarToLidar.dir/src/run_lidar2lidar.cpp.o
+/usr/bin/ranlib ../lib/libLidarToLidar.a

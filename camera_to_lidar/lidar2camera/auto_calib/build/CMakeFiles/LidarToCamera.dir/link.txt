@@ -1,0 +1,2 @@
+/usr/bin/ar qc ../lib/libLidarToCamera.a  CMakeFiles/LidarToCamera.dir/src/calibration.cpp.o CMakeFiles/LidarToCamera.dir/src/run_lidar2camera.cpp.o
+/usr/bin/ranlib ../lib/libLidarToCamera.a
