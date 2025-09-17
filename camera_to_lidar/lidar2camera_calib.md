@@ -69,6 +69,12 @@ pip install -e .
 pip install opencv-python pycocotools matplotlib onnxruntime onnx
 ```
 
+下载权重文件到当前文件夹目录,链接为：
+
+```
+链接: https://pan.baidu.com/s/1aJeCegG7I8UOaVgL5qczFQ?pwd=fhp9 提取码: fhp9 
+```
+
 运行代码，生成每个相机对应的文件夹对应的去畸变图片的掩码，并保存到对应的mask文件夹
 
 ```
@@ -122,7 +128,16 @@ data
 
 进入camera_to_lidar/lidar2camera/manual_calib文件夹，
 
-如果需要重新编译且在本地编译失败，可以尝试以下命令
+如果不需要重新编译，可以直接运行可执行文件，若需要重新编译则
+
+```
+cd build
+rm -rf ./*
+cmake ..
+&& make
+```
+
+在本地编译失败，可以尝试以下命令，后进入workspace文件夹编译
 
 ```
 # 拉取镜像
@@ -154,7 +169,16 @@ python update.py
 
 进入camera_to_lidar/lidar2camera/auto_calib文件夹
 
-如果需要重新编译且在本地编译失败，可以尝试以下命令
+如果不需要重新编译，可以直接运行可执行文件，若需要重新编译,则
+
+```
+cd build
+rm -rf ./*
+cmake ..
+make
+```
+
+在本地编译失败，可以尝试以下命令，后进入workspace文件夹编译
 
 ```
 # 拉取镜像
@@ -191,5 +215,5 @@ python convert2lidar.py
 python convert2m128.py
 ```
 
-就得到了五个相机到128线激光雷达的外参矩阵
+就得到了五个相机到主激光雷达的外参矩阵
 
