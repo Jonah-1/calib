@@ -1,0 +1,6 @@
+1  set(CMAKE_CXX_FLAGS "-std=c++14")
+
+2.cv::cvtColor(color, color_bar, cv::COLOR_HSV2BGR);
+
+3.#include <random>
+
