@@ -1,5 +1,5 @@
 lidar_to_lidar/storaged-data/*
-lidar_to_lidar/Refine Calibration/data
+lidar_to_lidar/Refine Calibration/data/*.pcd
 lidar_to_lidar/Refine Calibration/stitching.pcd
 lidar_to_lidar/Coarse Calibration/data1/*
 lidar_to_lidar/Coarse Calibration/data2/*

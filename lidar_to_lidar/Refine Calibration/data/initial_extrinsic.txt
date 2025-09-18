@@ -1,0 +1,6 @@
+device_id: 0
+(Roll,Pitch,Yaw,tx,ty,tz): 0 0 0 0 0 0
+device_id: 1
+(Roll,Pitch,Yaw,tx,ty,tz): 0 0 0 0 0 0
+device_id: 2
+(Roll,Pitch,Yaw,tx,ty,tz): 0 0 0 0 0 0
