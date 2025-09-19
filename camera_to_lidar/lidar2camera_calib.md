@@ -1,3 +1,8 @@
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> 38a7e901473e2eb7cd9f5f07a3e750ff014220b6
 ## 0 环境配置
 
 进入calibration/camera_to_lidar文件夹
@@ -30,6 +35,11 @@ export LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libtiff.so.5
 
 
 
+<<<<<<< HEAD
+=======
+## 
+
+>>>>>>> 38a7e901473e2eb7cd9f5f07a3e750ff014220b6
 ## 1 数据采集
 
 首先分别使用前后左右的各相机（前面有两个）同时与各自最近的前后左右激光雷达同时采集点云图片，保存为对应的四个bag包（camera-front.bag，camera-back.bag，camera-left.bag, camera-right.bag）
@@ -44,12 +54,21 @@ export LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libtiff.so.5
 python save_sync.py
 ```
 
+<<<<<<< HEAD
 ### 2.2 选图片生成掩码
 
 运行程序对每个鱼眼相机和针孔相机的图片随机选择，并保存到对应文件夹的undistorted文件夹中
 
 ```
 python select-images.py
+=======
+### 2.2 去畸变
+
+运行程序对每个鱼眼相机和针孔相机的图片去畸变，并保存到对应文件夹的undistorted文件夹中
+
+```
+python undistort.py
+>>>>>>> 38a7e901473e2eb7cd9f5f07a3e750ff014220b6
 ```
 
 ### 2.3 生成掩码
@@ -65,12 +84,24 @@ pip install -e .
 pip install opencv-python pycocotools matplotlib onnxruntime onnx
 ```
 
+<<<<<<< HEAD
+=======
+下载权重文件到当前文件夹目录,链接为：
+
+```
+链接: https://pan.baidu.com/s/1aJeCegG7I8UOaVgL5qczFQ?pwd=fhp9 提取码: fhp9 
+```
+
+>>>>>>> 38a7e901473e2eb7cd9f5f07a3e750ff014220b6
 运行代码，生成每个相机对应的文件夹对应的去畸变图片的掩码，并保存到对应的mask文件夹
 
 ```
 python scripts/amg.py --checkpoint sam_vit_l_0b3195.pth --model-type vit_l --stability-score-thresh 0.9 --box-nms-thresh 0.4 --stability-score-offset 0.9 --points-per-batch 32
+<<<<<<< HEAD
 
 conda activate calib  #回到原环境
+=======
+>>>>>>> 38a7e901473e2eb7cd9f5f07a3e750ff014220b6
 ```
 
 如果显存不够，就调小 --points-per-batch的值
@@ -91,7 +122,11 @@ data
 	├──pointclouds
 	├──undistorted
 	├──masks
+<<<<<<< HEAD
 	├──images
+=======
+	├──fisheye-images
+>>>>>>> 38a7e901473e2eb7cd9f5f07a3e750ff014220b6
 	├──auto-calib
 		├──0010
 			├──masks
@@ -118,7 +153,22 @@ data
 
 ### 3.1手动标定
 
+<<<<<<< HEAD
 进入camera_to_lidar/lidar2camera/manual_calib文件夹，如果需要重新编译且在本地编译失败，可以尝试以下命令
+=======
+进入camera_to_lidar/lidar2camera/manual_calib文件夹，
+
+如果不需要重新编译，可以直接运行可执行文件，若需要重新编译则
+
+```
+cd build
+rm -rf ./*
+cmake ..
+&& make
+```
+
+在本地编译失败，可以尝试以下命令，后进入workspace文件夹编译
+>>>>>>> 38a7e901473e2eb7cd9f5f07a3e750ff014220b6
 
 ```
 # 拉取镜像
@@ -148,9 +198,24 @@ python update.py
 
 ### 3.2 自动标定
 
+<<<<<<< HEAD
 进入camera_to_lidar/lidar2camera/auto_calib文件夹，
 
 如果需要重新编译且在本地编译失败，可以尝试以下命令
+=======
+进入camera_to_lidar/lidar2camera/auto_calib文件夹
+
+如果不需要重新编译，可以直接运行可执行文件，若需要重新编译,则
+
+```
+cd build
+rm -rf ./*
+cmake ..
+make
+```
+
+在本地编译失败，可以尝试以下命令，后进入workspace文件夹编译
+>>>>>>> 38a7e901473e2eb7cd9f5f07a3e750ff014220b6
 
 ```
 # 拉取镜像
@@ -178,5 +243,18 @@ bash auto-calib.sh
 
 标好后把camera_to_lidar/lidar2camera/auto_calib/extrinsic.txt中的Extrinsic矩阵复制到camera_to_lidar/output/lidar2camera.json中，替换对应相机的外参矩阵
 
+<<<<<<< HEAD
 
+=======
+五个雷达到相机的外参矩阵计算好后，把之前lidar_to_lidar中标好的lidar2m128 .json复制到camera_to_lidar/output，替换原json文件
+
+然后在camera_to_lidar/output下依次运行下面的程序
+
+```
+python convert2lidar.py
+python convert2m128.py
+```
+
+就得到了五个相机到主激光雷达的外参矩阵
+>>>>>>> 38a7e901473e2eb7cd9f5f07a3e750ff014220b6
 

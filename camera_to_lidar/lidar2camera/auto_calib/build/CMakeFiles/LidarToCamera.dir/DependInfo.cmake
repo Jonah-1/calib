@@ -4,8 +4,13 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
+<<<<<<< HEAD
   "/home/ljh/project/factory/Calibration1.0/camera_to_lidar/lidar2camera/auto_calib/src/calibration.cpp" "/home/ljh/project/factory/Calibration1.0/camera_to_lidar/lidar2camera/auto_calib/build/CMakeFiles/LidarToCamera.dir/src/calibration.cpp.o"
   "/home/ljh/project/factory/Calibration1.0/camera_to_lidar/lidar2camera/auto_calib/src/run_lidar2camera.cpp" "/home/ljh/project/factory/Calibration1.0/camera_to_lidar/lidar2camera/auto_calib/build/CMakeFiles/LidarToCamera.dir/src/run_lidar2camera.cpp.o"
+=======
+  "/home/ljh/project/factory/calibration/camera_to_lidar/lidar2camera/auto_calib/src/calibration.cpp" "/home/ljh/project/factory/calibration/camera_to_lidar/lidar2camera/auto_calib/build/CMakeFiles/LidarToCamera.dir/src/calibration.cpp.o"
+  "/home/ljh/project/factory/calibration/camera_to_lidar/lidar2camera/auto_calib/src/run_lidar2camera.cpp" "/home/ljh/project/factory/calibration/camera_to_lidar/lidar2camera/auto_calib/build/CMakeFiles/LidarToCamera.dir/src/run_lidar2camera.cpp.o"
+>>>>>>> 38a7e901473e2eb7cd9f5f07a3e750ff014220b6
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 

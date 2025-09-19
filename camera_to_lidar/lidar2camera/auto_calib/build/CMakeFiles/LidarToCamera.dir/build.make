@@ -43,10 +43,17 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
+<<<<<<< HEAD
 CMAKE_SOURCE_DIR = /home/ljh/project/factory/Calibration1.0/camera_to_lidar/lidar2camera/auto_calib
 
 # The top-level build directory on which CMake was run.
 CMAKE_BINARY_DIR = /home/ljh/project/factory/Calibration1.0/camera_to_lidar/lidar2camera/auto_calib/build
+=======
+CMAKE_SOURCE_DIR = /home/ljh/project/factory/calibration/camera_to_lidar/lidar2camera/auto_calib
+
+# The top-level build directory on which CMake was run.
+CMAKE_BINARY_DIR = /home/ljh/project/factory/calibration/camera_to_lidar/lidar2camera/auto_calib/build
+>>>>>>> 38a7e901473e2eb7cd9f5f07a3e750ff014220b6
 
 # Include any dependencies generated for this target.
 include CMakeFiles/LidarToCamera.dir/depend.make
@@ -59,6 +66,7 @@ include CMakeFiles/LidarToCamera.dir/flags.make
 
 CMakeFiles/LidarToCamera.dir/src/calibration.cpp.o: CMakeFiles/LidarToCamera.dir/flags.make
 CMakeFiles/LidarToCamera.dir/src/calibration.cpp.o: ../src/calibration.cpp
+<<<<<<< HEAD
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ljh/project/factory/Calibration1.0/camera_to_lidar/lidar2camera/auto_calib/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/LidarToCamera.dir/src/calibration.cpp.o"
 	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/LidarToCamera.dir/src/calibration.cpp.o -c /home/ljh/project/factory/Calibration1.0/camera_to_lidar/lidar2camera/auto_calib/src/calibration.cpp
 
@@ -82,6 +90,31 @@ CMakeFiles/LidarToCamera.dir/src/run_lidar2camera.cpp.i: cmake_force
 CMakeFiles/LidarToCamera.dir/src/run_lidar2camera.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/LidarToCamera.dir/src/run_lidar2camera.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ljh/project/factory/Calibration1.0/camera_to_lidar/lidar2camera/auto_calib/src/run_lidar2camera.cpp -o CMakeFiles/LidarToCamera.dir/src/run_lidar2camera.cpp.s
+=======
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ljh/project/factory/calibration/camera_to_lidar/lidar2camera/auto_calib/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/LidarToCamera.dir/src/calibration.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/LidarToCamera.dir/src/calibration.cpp.o -c /home/ljh/project/factory/calibration/camera_to_lidar/lidar2camera/auto_calib/src/calibration.cpp
+
+CMakeFiles/LidarToCamera.dir/src/calibration.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/LidarToCamera.dir/src/calibration.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ljh/project/factory/calibration/camera_to_lidar/lidar2camera/auto_calib/src/calibration.cpp > CMakeFiles/LidarToCamera.dir/src/calibration.cpp.i
+
+CMakeFiles/LidarToCamera.dir/src/calibration.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/LidarToCamera.dir/src/calibration.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ljh/project/factory/calibration/camera_to_lidar/lidar2camera/auto_calib/src/calibration.cpp -o CMakeFiles/LidarToCamera.dir/src/calibration.cpp.s
+
+CMakeFiles/LidarToCamera.dir/src/run_lidar2camera.cpp.o: CMakeFiles/LidarToCamera.dir/flags.make
+CMakeFiles/LidarToCamera.dir/src/run_lidar2camera.cpp.o: ../src/run_lidar2camera.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ljh/project/factory/calibration/camera_to_lidar/lidar2camera/auto_calib/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/LidarToCamera.dir/src/run_lidar2camera.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/LidarToCamera.dir/src/run_lidar2camera.cpp.o -c /home/ljh/project/factory/calibration/camera_to_lidar/lidar2camera/auto_calib/src/run_lidar2camera.cpp
+
+CMakeFiles/LidarToCamera.dir/src/run_lidar2camera.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/LidarToCamera.dir/src/run_lidar2camera.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ljh/project/factory/calibration/camera_to_lidar/lidar2camera/auto_calib/src/run_lidar2camera.cpp > CMakeFiles/LidarToCamera.dir/src/run_lidar2camera.cpp.i
+
+CMakeFiles/LidarToCamera.dir/src/run_lidar2camera.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/LidarToCamera.dir/src/run_lidar2camera.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ljh/project/factory/calibration/camera_to_lidar/lidar2camera/auto_calib/src/run_lidar2camera.cpp -o CMakeFiles/LidarToCamera.dir/src/run_lidar2camera.cpp.s
+>>>>>>> 38a7e901473e2eb7cd9f5f07a3e750ff014220b6
 
 # Object files for target LidarToCamera
 LidarToCamera_OBJECTS = \
@@ -95,7 +128,11 @@ LidarToCamera_EXTERNAL_OBJECTS =
 ../lib/libLidarToCamera.a: CMakeFiles/LidarToCamera.dir/src/run_lidar2camera.cpp.o
 ../lib/libLidarToCamera.a: CMakeFiles/LidarToCamera.dir/build.make
 ../lib/libLidarToCamera.a: CMakeFiles/LidarToCamera.dir/link.txt
+<<<<<<< HEAD
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/ljh/project/factory/Calibration1.0/camera_to_lidar/lidar2camera/auto_calib/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Linking CXX static library ../lib/libLidarToCamera.a"
+=======
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/ljh/project/factory/calibration/camera_to_lidar/lidar2camera/auto_calib/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Linking CXX static library ../lib/libLidarToCamera.a"
+>>>>>>> 38a7e901473e2eb7cd9f5f07a3e750ff014220b6
 	$(CMAKE_COMMAND) -P CMakeFiles/LidarToCamera.dir/cmake_clean_target.cmake
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/LidarToCamera.dir/link.txt --verbose=$(VERBOSE)
 
@@ -109,6 +146,10 @@ CMakeFiles/LidarToCamera.dir/clean:
 .PHONY : CMakeFiles/LidarToCamera.dir/clean
 
 CMakeFiles/LidarToCamera.dir/depend:
+<<<<<<< HEAD
 	cd /home/ljh/project/factory/Calibration1.0/camera_to_lidar/lidar2camera/auto_calib/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/ljh/project/factory/Calibration1.0/camera_to_lidar/lidar2camera/auto_calib /home/ljh/project/factory/Calibration1.0/camera_to_lidar/lidar2camera/auto_calib /home/ljh/project/factory/Calibration1.0/camera_to_lidar/lidar2camera/auto_calib/build /home/ljh/project/factory/Calibration1.0/camera_to_lidar/lidar2camera/auto_calib/build /home/ljh/project/factory/Calibration1.0/camera_to_lidar/lidar2camera/auto_calib/build/CMakeFiles/LidarToCamera.dir/DependInfo.cmake --color=$(COLOR)
+=======
+	cd /home/ljh/project/factory/calibration/camera_to_lidar/lidar2camera/auto_calib/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/ljh/project/factory/calibration/camera_to_lidar/lidar2camera/auto_calib /home/ljh/project/factory/calibration/camera_to_lidar/lidar2camera/auto_calib /home/ljh/project/factory/calibration/camera_to_lidar/lidar2camera/auto_calib/build /home/ljh/project/factory/calibration/camera_to_lidar/lidar2camera/auto_calib/build /home/ljh/project/factory/calibration/camera_to_lidar/lidar2camera/auto_calib/build/CMakeFiles/LidarToCamera.dir/DependInfo.cmake --color=$(COLOR)
+>>>>>>> 38a7e901473e2eb7cd9f5f07a3e750ff014220b6
 .PHONY : CMakeFiles/LidarToCamera.dir/depend
 

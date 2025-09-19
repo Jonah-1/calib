@@ -44,10 +44,17 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
+<<<<<<< HEAD
 CMAKE_SOURCE_DIR = /home/ljh/project/factory/Calibration1.0/camera_to_lidar/lidar2camera/auto_calib
 
 # The top-level build directory on which CMake was run.
 CMAKE_BINARY_DIR = /home/ljh/project/factory/Calibration1.0/camera_to_lidar/lidar2camera/auto_calib/build
+=======
+CMAKE_SOURCE_DIR = /home/ljh/project/factory/calibration/camera_to_lidar/lidar2camera/auto_calib
+
+# The top-level build directory on which CMake was run.
+CMAKE_BINARY_DIR = /home/ljh/project/factory/calibration/camera_to_lidar/lidar2camera/auto_calib/build
+>>>>>>> 38a7e901473e2eb7cd9f5f07a3e750ff014220b6
 
 #=============================================================================
 # Directory level rules for the build root directory
@@ -76,14 +83,24 @@ clean: CMakeFiles/LidarToCamera.dir/clean
 CMakeFiles/run_lidar2camera.dir/all: CMakeFiles/LidarToCamera.dir/all
 	$(MAKE) -f CMakeFiles/run_lidar2camera.dir/build.make CMakeFiles/run_lidar2camera.dir/depend
 	$(MAKE) -f CMakeFiles/run_lidar2camera.dir/build.make CMakeFiles/run_lidar2camera.dir/build
+<<<<<<< HEAD
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/ljh/project/factory/Calibration1.0/camera_to_lidar/lidar2camera/auto_calib/build/CMakeFiles --progress-num=4,5 "Built target run_lidar2camera"
+=======
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/ljh/project/factory/calibration/camera_to_lidar/lidar2camera/auto_calib/build/CMakeFiles --progress-num=4,5 "Built target run_lidar2camera"
+>>>>>>> 38a7e901473e2eb7cd9f5f07a3e750ff014220b6
 .PHONY : CMakeFiles/run_lidar2camera.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/run_lidar2camera.dir/rule: cmake_check_build_system
+<<<<<<< HEAD
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/ljh/project/factory/Calibration1.0/camera_to_lidar/lidar2camera/auto_calib/build/CMakeFiles 5
 	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/run_lidar2camera.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/ljh/project/factory/Calibration1.0/camera_to_lidar/lidar2camera/auto_calib/build/CMakeFiles 0
+=======
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/ljh/project/factory/calibration/camera_to_lidar/lidar2camera/auto_calib/build/CMakeFiles 5
+	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/run_lidar2camera.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/ljh/project/factory/calibration/camera_to_lidar/lidar2camera/auto_calib/build/CMakeFiles 0
+>>>>>>> 38a7e901473e2eb7cd9f5f07a3e750ff014220b6
 .PHONY : CMakeFiles/run_lidar2camera.dir/rule
 
 # Convenience name for target.
@@ -103,14 +120,24 @@ CMakeFiles/run_lidar2camera.dir/clean:
 CMakeFiles/LidarToCamera.dir/all:
 	$(MAKE) -f CMakeFiles/LidarToCamera.dir/build.make CMakeFiles/LidarToCamera.dir/depend
 	$(MAKE) -f CMakeFiles/LidarToCamera.dir/build.make CMakeFiles/LidarToCamera.dir/build
+<<<<<<< HEAD
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/ljh/project/factory/Calibration1.0/camera_to_lidar/lidar2camera/auto_calib/build/CMakeFiles --progress-num=1,2,3 "Built target LidarToCamera"
+=======
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/ljh/project/factory/calibration/camera_to_lidar/lidar2camera/auto_calib/build/CMakeFiles --progress-num=1,2,3 "Built target LidarToCamera"
+>>>>>>> 38a7e901473e2eb7cd9f5f07a3e750ff014220b6
 .PHONY : CMakeFiles/LidarToCamera.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/LidarToCamera.dir/rule: cmake_check_build_system
+<<<<<<< HEAD
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/ljh/project/factory/Calibration1.0/camera_to_lidar/lidar2camera/auto_calib/build/CMakeFiles 3
 	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/LidarToCamera.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/ljh/project/factory/Calibration1.0/camera_to_lidar/lidar2camera/auto_calib/build/CMakeFiles 0
+=======
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/ljh/project/factory/calibration/camera_to_lidar/lidar2camera/auto_calib/build/CMakeFiles 3
+	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/LidarToCamera.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/ljh/project/factory/calibration/camera_to_lidar/lidar2camera/auto_calib/build/CMakeFiles 0
+>>>>>>> 38a7e901473e2eb7cd9f5f07a3e750ff014220b6
 .PHONY : CMakeFiles/LidarToCamera.dir/rule
 
 # Convenience name for target.

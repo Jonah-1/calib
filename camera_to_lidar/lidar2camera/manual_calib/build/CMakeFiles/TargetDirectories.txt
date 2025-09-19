@@ -1,3 +1,9 @@
+<<<<<<< HEAD
 /home/ljh/project/factory/Calibration1.0/camera_to_lidar/lidar2camera/manual_calib/build/CMakeFiles/rebuild_cache.dir
 /home/ljh/project/factory/Calibration1.0/camera_to_lidar/lidar2camera/manual_calib/build/CMakeFiles/edit_cache.dir
 /home/ljh/project/factory/Calibration1.0/camera_to_lidar/lidar2camera/manual_calib/build/CMakeFiles/run_lidar2camera.dir
+=======
+/home/ljh/project/factory/calibration/camera_to_lidar/lidar2camera/manual_calib/build/CMakeFiles/rebuild_cache.dir
+/home/ljh/project/factory/calibration/camera_to_lidar/lidar2camera/manual_calib/build/CMakeFiles/edit_cache.dir
+/home/ljh/project/factory/calibration/camera_to_lidar/lidar2camera/manual_calib/build/CMakeFiles/run_lidar2camera.dir
+>>>>>>> 38a7e901473e2eb7cd9f5f07a3e750ff014220b6

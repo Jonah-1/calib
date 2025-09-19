@@ -124,6 +124,7 @@ def copy_json_to_mannualcalib(camera_folders):
             params = read_camera_parameters(param_file_path)
             
             # 提取内参，如果是特殊的pinhole-front，使用硬编码的参数
+<<<<<<< HEAD
             # if camera_folder == "pinhole-front":
             #     fx = 1910.3417311410
             #     fy = 1910.3058674355
@@ -139,6 +140,19 @@ def copy_json_to_mannualcalib(camera_folders):
             cx=672//2
             cy=544//2
 
+=======
+            if camera_folder == "pinhole-front":
+                fx = 1910.3417311410
+                fy = 1910.3058674355
+                cx = 1917.7001038394
+                cy = 1081.4421265044
+            else:
+                fx = params.get("FX", 0.0)
+                fy = params.get("FY", 0.0)
+                cx = params.get("CX", 0.0)
+                cy = params.get("CY", 0.0)
+            
+>>>>>>> 38a7e901473e2eb7cd9f5f07a3e750ff014220b6
             # 构建内参JSON内容
             intrinsic_data = {
                 "center_camera-intrinsic": {
@@ -147,8 +161,13 @@ def copy_json_to_mannualcalib(camera_folders):
                     "device_type": "camera",
                     "param_type": "intrinsic",
                     "param": {
+<<<<<<< HEAD
                         "img_dist_w": 672,
                         "img_dist_h": 544,
+=======
+                        "img_dist_w": 1920,
+                        "img_dist_h": 1536,
+>>>>>>> 38a7e901473e2eb7cd9f5f07a3e750ff014220b6
                         "cam_K": {
                             "rows": 3,
                             "cols": 3,
@@ -183,8 +202,13 @@ def copy_json_to_mannualcalib(camera_folders):
                     "device_type": "camera",
                     "param_type": "intrinsic",
                     "param": {
+<<<<<<< HEAD
                         "img_dist_w": 672,
                         "img_dist_h": 544,
+=======
+                        "img_dist_w": 1920,
+                        "img_dist_h": 1536,
+>>>>>>> 38a7e901473e2eb7cd9f5f07a3e750ff014220b6
                         "cam_K": {
                             "rows": 3,
                             "cols": 3,
@@ -258,6 +282,7 @@ def copy_calib_to_autocalib(camera_folders):
             params = read_camera_parameters(param_file_path)
             
             # 提取内参，如果是特殊的pinhole-front，使用硬编码的参数
+<<<<<<< HEAD
             # if camera_folder == "pinhole-front":
             #     fx = 1910.3417311410
             #     fy = 1910.3058674355
@@ -274,6 +299,19 @@ def copy_calib_to_autocalib(camera_folders):
             fy = params.get("FY", "N/A")
             cx=672//2
             cy=544//2
+=======
+            if camera_folder == "pinhole-front":
+                fx = 1910.3417311410
+                fy = 1910.3058674355
+                cx = 1917.7001038394
+                cy = 1081.4421265044
+            else:
+                fx = params.get("FX", "N/A")
+                fy = params.get("FY", "N/A")
+                cx = params.get("CX", "N/A")
+                cy = params.get("CY", "N/A")
+            
+>>>>>>> 38a7e901473e2eb7cd9f5f07a3e750ff014220b6
             # 构建calib.txt内容，按照固定格式
             calib_content = f"P2: {fx} 0 {cx} 0 {fy} {cy} 0 0 1\n"
             calib_content += "D: 0 0 0 0 0\n"

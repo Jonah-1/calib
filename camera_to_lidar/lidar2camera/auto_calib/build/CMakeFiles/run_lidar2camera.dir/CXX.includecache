@@ -86,7 +86,11 @@ opencv2/opencv.hpp
 opencv2/core/eigen.hpp
 -
 
+<<<<<<< HEAD
 /home/ljh/project/factory/Calibration1.0/camera_to_lidar/lidar2camera/auto_calib/src/run_lidar2camera.cpp
+=======
+/home/ljh/project/factory/calibration/camera_to_lidar/lidar2camera/auto_calib/src/run_lidar2camera.cpp
+>>>>>>> 38a7e901473e2eb7cd9f5f07a3e750ff014220b6
 chrono
 -
 iostream
@@ -98,7 +102,11 @@ thread
 time.h
 -
 calibration.hpp
+<<<<<<< HEAD
 /home/ljh/project/factory/Calibration1.0/camera_to_lidar/lidar2camera/auto_calib/src/calibration.hpp
+=======
+/home/ljh/project/factory/calibration/camera_to_lidar/lidar2camera/auto_calib/src/calibration.hpp
+>>>>>>> 38a7e901473e2eb7cd9f5f07a3e750ff014220b6
 
 /usr/include/eigen3/Eigen/Cholesky
 Core

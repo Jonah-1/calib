@@ -46,7 +46,11 @@ vector
 pcl/io/pcd_io.h
 ../include/pcl/io/pcd_io.h
 
+<<<<<<< HEAD
 /home/ljh/project/factory/Calibration1.0/camera_to_lidar/lidar2camera/manual_calib/src/run_lidar2camera.cpp
+=======
+/home/ljh/project/factory/calibration/camera_to_lidar/lidar2camera/manual_calib/src/run_lidar2camera.cpp
+>>>>>>> 38a7e901473e2eb7cd9f5f07a3e750ff014220b6
 boost/filesystem.hpp
 -
 opencv2/opencv.hpp
@@ -76,11 +80,19 @@ iostream
 string
 -
 extrinsic_param.hpp
+<<<<<<< HEAD
 /home/ljh/project/factory/Calibration1.0/camera_to_lidar/lidar2camera/manual_calib/src/extrinsic_param.hpp
 intrinsic_param.hpp
 /home/ljh/project/factory/Calibration1.0/camera_to_lidar/lidar2camera/manual_calib/src/intrinsic_param.hpp
 projector_lidar.hpp
 /home/ljh/project/factory/Calibration1.0/camera_to_lidar/lidar2camera/manual_calib/src/projector_lidar.hpp
+=======
+/home/ljh/project/factory/calibration/camera_to_lidar/lidar2camera/manual_calib/src/extrinsic_param.hpp
+intrinsic_param.hpp
+/home/ljh/project/factory/calibration/camera_to_lidar/lidar2camera/manual_calib/src/intrinsic_param.hpp
+projector_lidar.hpp
+/home/ljh/project/factory/calibration/camera_to_lidar/lidar2camera/manual_calib/src/projector_lidar.hpp
+>>>>>>> 38a7e901473e2eb7cd9f5f07a3e750ff014220b6
 
 /usr/include/eigen3/Eigen/Cholesky
 Core

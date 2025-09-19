@@ -6,5 +6,9 @@ CXX_FLAGS = -g3 -O -Wall    -std=gnu++1z
 
 CXX_DEFINES = -DDISABLE_LIBUSB_1_0 -DDISABLE_PCAP -DDISABLE_PNG -Dqh_QHpointer -DvtkRenderingContext2D_AUTOINIT="1(vtkRenderingContextOpenGL2)" -DvtkRenderingCore_AUTOINIT="3(vtkInteractionStyle,vtkRenderingFreeType,vtkRenderingOpenGL2)"
 
+<<<<<<< HEAD
 CXX_INCLUDES = -I/home/ljh/project/factory/Calibration1.0/camera_to_lidar/lidar2camera/manual_calib/include -I/home/ljh/project/factory/Calibration1.0/camera_to_lidar/lidar2camera/manual_calib/src -isystem /usr/include/eigen3 -isystem /usr/include/vtk-7.1 -isystem /usr/include/freetype2 -isystem /usr/include/pcl-1.10 -isystem /usr/include/ni -isystem /usr/include/openni2 -isystem /usr/local/include/opencv4 -isystem /usr/include/jsoncpp 
+=======
+CXX_INCLUDES = -I/home/ljh/project/factory/calibration/camera_to_lidar/lidar2camera/manual_calib/include -I/home/ljh/project/factory/calibration/camera_to_lidar/lidar2camera/manual_calib/src -isystem /usr/include/eigen3 -isystem /usr/include/vtk-7.1 -isystem /usr/include/freetype2 -isystem /usr/include/pcl-1.10 -isystem /usr/include/ni -isystem /usr/include/openni2 -isystem /usr/local/include/opencv4 -isystem /usr/include/jsoncpp 
+>>>>>>> 38a7e901473e2eb7cd9f5f07a3e750ff014220b6
 

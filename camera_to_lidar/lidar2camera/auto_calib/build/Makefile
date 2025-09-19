@@ -48,10 +48,17 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
+<<<<<<< HEAD
 CMAKE_SOURCE_DIR = /home/ljh/project/factory/Calibration1.0/camera_to_lidar/lidar2camera/auto_calib
 
 # The top-level build directory on which CMake was run.
 CMAKE_BINARY_DIR = /home/ljh/project/factory/Calibration1.0/camera_to_lidar/lidar2camera/auto_calib/build
+=======
+CMAKE_SOURCE_DIR = /home/ljh/project/factory/calibration/camera_to_lidar/lidar2camera/auto_calib
+
+# The top-level build directory on which CMake was run.
+CMAKE_BINARY_DIR = /home/ljh/project/factory/calibration/camera_to_lidar/lidar2camera/auto_calib/build
+>>>>>>> 38a7e901473e2eb7cd9f5f07a3e750ff014220b6
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -80,9 +87,15 @@ edit_cache/fast: edit_cache
 
 # The main all target
 all: cmake_check_build_system
+<<<<<<< HEAD
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/ljh/project/factory/Calibration1.0/camera_to_lidar/lidar2camera/auto_calib/build/CMakeFiles /home/ljh/project/factory/Calibration1.0/camera_to_lidar/lidar2camera/auto_calib/build/CMakeFiles/progress.marks
 	$(MAKE) -f CMakeFiles/Makefile2 all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/ljh/project/factory/Calibration1.0/camera_to_lidar/lidar2camera/auto_calib/build/CMakeFiles 0
+=======
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/ljh/project/factory/calibration/camera_to_lidar/lidar2camera/auto_calib/build/CMakeFiles /home/ljh/project/factory/calibration/camera_to_lidar/lidar2camera/auto_calib/build/CMakeFiles/progress.marks
+	$(MAKE) -f CMakeFiles/Makefile2 all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/ljh/project/factory/calibration/camera_to_lidar/lidar2camera/auto_calib/build/CMakeFiles 0
+>>>>>>> 38a7e901473e2eb7cd9f5f07a3e750ff014220b6
 .PHONY : all
 
 # The main clean target

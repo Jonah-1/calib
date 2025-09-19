@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # Install script for directory: /home/ljh/project/factory/Calibration1.0/camera_to_lidar/lidar2camera/auto_calib
+=======
+# Install script for directory: /home/ljh/project/factory/calibration/camera_to_lidar/lidar2camera/auto_calib
+>>>>>>> 38a7e901473e2eb7cd9f5f07a3e750ff014220b6
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -45,5 +49,9 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
+<<<<<<< HEAD
 file(WRITE "/home/ljh/project/factory/Calibration1.0/camera_to_lidar/lidar2camera/auto_calib/build/${CMAKE_INSTALL_MANIFEST}"
+=======
+file(WRITE "/home/ljh/project/factory/calibration/camera_to_lidar/lidar2camera/auto_calib/build/${CMAKE_INSTALL_MANIFEST}"
+>>>>>>> 38a7e901473e2eb7cd9f5f07a3e750ff014220b6
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

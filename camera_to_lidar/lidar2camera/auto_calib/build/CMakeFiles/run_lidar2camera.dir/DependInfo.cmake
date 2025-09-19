@@ -4,7 +4,11 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
+<<<<<<< HEAD
   "/home/ljh/project/factory/Calibration1.0/camera_to_lidar/lidar2camera/auto_calib/src/run_lidar2camera.cpp" "/home/ljh/project/factory/Calibration1.0/camera_to_lidar/lidar2camera/auto_calib/build/CMakeFiles/run_lidar2camera.dir/src/run_lidar2camera.cpp.o"
+=======
+  "/home/ljh/project/factory/calibration/camera_to_lidar/lidar2camera/auto_calib/src/run_lidar2camera.cpp" "/home/ljh/project/factory/calibration/camera_to_lidar/lidar2camera/auto_calib/build/CMakeFiles/run_lidar2camera.dir/src/run_lidar2camera.cpp.o"
+>>>>>>> 38a7e901473e2eb7cd9f5f07a3e750ff014220b6
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 
@@ -33,7 +37,11 @@ set(CMAKE_CXX_TARGET_INCLUDE_PATH
 
 # Targets to which this target links.
 set(CMAKE_TARGET_LINKED_INFO_FILES
+<<<<<<< HEAD
   "/home/ljh/project/factory/Calibration1.0/camera_to_lidar/lidar2camera/auto_calib/build/CMakeFiles/LidarToCamera.dir/DependInfo.cmake"
+=======
+  "/home/ljh/project/factory/calibration/camera_to_lidar/lidar2camera/auto_calib/build/CMakeFiles/LidarToCamera.dir/DependInfo.cmake"
+>>>>>>> 38a7e901473e2eb7cd9f5f07a3e750ff014220b6
   )
 
 # Fortran module output directory.

@@ -5,7 +5,11 @@ CMakeFiles/run_lidar2camera.dir/src/run_lidar2camera.cpp.o
  ../include/extrinsic_param.hpp
  ../include/intrinsic_param.hpp
  ../include/projector_lidar.hpp
+<<<<<<< HEAD
  /home/ljh/project/factory/Calibration1.0/camera_to_lidar/lidar2camera/manual_calib/src/run_lidar2camera.cpp
+=======
+ /home/ljh/project/factory/calibration/camera_to_lidar/lidar2camera/manual_calib/src/run_lidar2camera.cpp
+>>>>>>> 38a7e901473e2eb7cd9f5f07a3e750ff014220b6
  /usr/include/eigen3/Eigen/Cholesky
  /usr/include/eigen3/Eigen/Core
  /usr/include/eigen3/Eigen/Dense
