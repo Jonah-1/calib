@@ -327,8 +327,8 @@ def process_pinhole_image(param_file, input_dir, output_dir):
 if __name__ == "__main__":
     param_files = ["Parameters/pinhole-back.txt","Parameters/pinhole-front.txt","Parameters/fisheye-front.txt", 
                     "Parameters/fisheye-left.txt", "Parameters/fisheye-right.txt"]
-    input_dirs = [f"pinhole-back/pinhole-images", f"pinhole-front/pinhole-images", f"fisheye-front/fisheye-images",
-                  f"fisheye-left/fisheye-images", f"fisheye-right/fisheye-images"]
+    input_dirs = [f"pinhole-back/images", f"pinhole-front/images", f"fisheye-front/images",
+                  f"fisheye-left/images", f"fisheye-right/images"]
     output_dirs = [f"pinhole-back/undistorted", f"pinhole-front/undistorted", f"fisheye-front/undistorted",
                    f"fisheye-left/undistorted", f"fisheye-right/undistorted"]
     
