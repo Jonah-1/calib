@@ -83,7 +83,7 @@ def read_camera_parameters(param_file):
     return params
 
 
-def undistort_fisheye_images(param_file, input_dir, output_dir):
+def undistort_fisheye_images(param_file, input_dir, output_dir, selection_mode='random', num_frames=3):
     """对鱼眼相机拍摄的图像进行去畸变处理"""
     # 读取参数
     params = read_camera_parameters(param_file)
@@ -124,14 +124,29 @@ def undistort_fisheye_images(param_file, input_dir, output_dir):
     print(f"已清空并重新创建输出目录: {output_dir}")
     
     # 获取输入目录中的所有图像
-    image_files = glob.glob(os.path.join(input_dir, '*.png')) + glob.glob(os.path.join(input_dir, '*.jpg'))
+    all_image_files = glob.glob(os.path.join(input_dir, '*.png')) + glob.glob(os.path.join(input_dir, '*.jpg'))
     
-    # 随机选择3张图片进行处理
-    if len(image_files) > 3:
-        image_files = random.sample(image_files, 3)
-        print(f"从 {len(glob.glob(os.path.join(input_dir, '*.png')) + glob.glob(os.path.join(input_dir, '*.jpg')))} 张图片中随机选择了 3 张进行处理")
+    # 根据选择模式处理图片
+    if selection_mode == 'random':
+        # 随机选择指定数量的图片
+        if len(all_image_files) > num_frames:
+            image_files = random.sample(all_image_files, num_frames)
+            print(f"从 {len(all_image_files)} 张图片中随机选择了 {num_frames} 张进行处理")
+        else:
+            image_files = all_image_files
+            print(f"总共只有 {len(image_files)} 张图片，全部处理")
+    elif selection_mode == 'sequential':
+        # 按顺序选择指定数量的图片
+        if len(all_image_files) > num_frames:
+            image_files = all_image_files[:num_frames]
+            print(f"从 {len(all_image_files)} 张图片中按顺序选择了前 {num_frames} 张进行处理")
+        else:
+            image_files = all_image_files
+            print(f"总共只有 {len(image_files)} 张图片，全部处理")
     else:
-        print(f"总共只有 {len(image_files)} 张图片，全部处理")
+        # 默认处理所有图片
+        image_files = all_image_files
+        print(f"处理所有 {len(image_files)} 张图片")
     
     # 处理选中的图像
     for image_file in image_files:
@@ -236,10 +251,10 @@ def calculate_new_camera_matrix(params, input_dir, crop_percent=1):
     
     return None, None
 
-def process_fisheye_camera(param_file, input_dir, output_dir):
+def process_fisheye_camera(param_file, input_dir, output_dir, selection_mode='random', num_frames=3):
     try:
         print(f'开始处理camera: {input_dir}中的图片')
-        undistort_fisheye_images(param_file, input_dir, output_dir)
+        undistort_fisheye_images(param_file, input_dir, output_dir, selection_mode, num_frames)
         print(f"所有图像已处理完成并保存到 {output_dir} 目录")
     except Exception as e:
         print(f"处理出错: {e}")
@@ -279,7 +294,7 @@ def undistort_pinhole_image(image_path, params, input_dir):
     
     return undistorted_img, camera_matrix
 
-def process_pinhole_image(param_file, input_dir, output_dir):
+def process_pinhole_image(param_file, input_dir, output_dir, selection_mode='random', num_frames=3):
         try:
             # 清空并重新创建输出目录
             if os.path.exists(output_dir):
@@ -288,14 +303,29 @@ def process_pinhole_image(param_file, input_dir, output_dir):
             print(f"已清空并重新创建输出目录: {output_dir}")
             
             params = read_camera_parameters(param_file)
-            image_files = glob.glob(os.path.join(input_dir, '*.jpg'))+glob.glob(os.path.join(input_dir, '*.png'))
+            all_image_files = glob.glob(os.path.join(input_dir, '*.jpg'))+glob.glob(os.path.join(input_dir, '*.png'))
             
-            # 随机选择3张图片进行处理
-            if len(image_files) > 3:
-                image_files = random.sample(image_files, 3)
-                print(f"从 {len(glob.glob(os.path.join(input_dir, '*.jpg'))+glob.glob(os.path.join(input_dir, '*.png')))} 张图片中随机选择了 3 张进行处理")
+            # 根据选择模式处理图片
+            if selection_mode == 'random':
+                # 随机选择指定数量的图片
+                if len(all_image_files) > num_frames:
+                    image_files = random.sample(all_image_files, num_frames)
+                    print(f"从 {len(all_image_files)} 张图片中随机选择了 {num_frames} 张进行处理")
+                else:
+                    image_files = all_image_files
+                    print(f"总共只有 {len(image_files)} 张图片，全部处理")
+            elif selection_mode == 'sequential':
+                # 按顺序选择指定数量的图片
+                if len(all_image_files) > num_frames:
+                    image_files = all_image_files[:num_frames]
+                    print(f"从 {len(all_image_files)} 张图片中按顺序选择了前 {num_frames} 张进行处理")
+                else:
+                    image_files = all_image_files
+                    print(f"总共只有 {len(image_files)} 张图片，全部处理")
             else:
-                print(f"总共只有 {len(image_files)} 张图片，全部处理")
+                # 默认处理所有图片
+                image_files = all_image_files
+                print(f"处理所有 {len(image_files)} 张图片")
             
             # 处理选中的图片
             for image_path in image_files:
@@ -324,23 +354,80 @@ def process_pinhole_image(param_file, input_dir, output_dir):
             print(f"处理图像时出错: {str(e)}")
 
 
-if __name__ == "__main__":
-    param_files = ["Parameters/pinhole-back.txt","Parameters/pinhole-front.txt","Parameters/fisheye-front.txt", 
-                    "Parameters/fisheye-left.txt", "Parameters/fisheye-right.txt"]
-    input_dirs = [f"pinhole-back/images", f"pinhole-front/images", f"fisheye-front/images",
-                  f"fisheye-left/images", f"fisheye-right/images"]
-    output_dirs = [f"pinhole-back/undistorted", f"pinhole-front/undistorted", f"fisheye-front/undistorted",
-                   f"fisheye-left/undistorted", f"fisheye-right/undistorted"]
-    
-    for param_file, input_dir, output_dir in zip(param_files, input_dirs, output_dirs):
-        # 输出目录的清空和创建现在在各自的处理函数内部完成
-        if "pinhole" in input_dir:
-            process_pinhole_image(param_file, input_dir, output_dir)
-        else:
-            process_fisheye_camera(param_file, input_dir, output_dir)
+def parse_arguments():
+    """解析命令行参数"""
+    parser = argparse.ArgumentParser(description='相机图像去畸变处理工具')
+    parser.add_argument('--mode', choices=['random', 'sequential', 'all'], default='random',
+                        help='图片选择模式: random(随机选择), sequential(按顺序选择), all(处理所有图片)')
+    parser.add_argument('--frames', type=int, default=3,
+                        help='每个相机处理的图片数量 (默认: 3)')
+    parser.add_argument('--cameras', nargs='+', 
+                        choices=['pinhole-back', 'pinhole-front', 'fisheye-front', 'fisheye-left', 'fisheye-right'],
+                        default=['pinhole-back', 'pinhole-front', 'fisheye-front', 'fisheye-left', 'fisheye-right'],
+                        help='指定要处理的相机 (默认: 处理所有相机)')
+    return parser.parse_args()
 
-    camera_config_path = "Parameters/camera_config.json"
-    update_camera_config(camera_config_path, param_files, input_dirs)
-    # generate_camera_config_dir(camera_config_path) # Commenting out problematic function
+if __name__ == "__main__":
+    # 解析命令行参数
+    args = parse_arguments()
     
-    print("\n处理完所有图片")
+    # 相机配置
+    camera_configs = {
+        'pinhole-back': {
+            'param_file': "Parameters/pinhole-back.txt",
+            'input_dir': "pinhole-back/images",
+            'output_dir': "pinhole-back/undistorted"
+        },
+        'pinhole-front': {
+            'param_file': "Parameters/pinhole-front.txt",
+            'input_dir': "pinhole-front/images",
+            'output_dir': "pinhole-front/undistorted"
+        },
+        'fisheye-front': {
+            'param_file': "Parameters/fisheye-front.txt",
+            'input_dir': "fisheye-front/images",
+            'output_dir': "fisheye-front/undistorted"
+        },
+        'fisheye-left': {
+            'param_file': "Parameters/fisheye-left.txt",
+            'input_dir': "fisheye-left/images",
+            'output_dir': "fisheye-left/undistorted"
+        },
+        'fisheye-right': {
+            'param_file': "Parameters/fisheye-right.txt",
+            'input_dir': "fisheye-right/images",
+            'output_dir': "fisheye-right/undistorted"
+        }
+    }
+    
+    print(f"图片选择模式: {args.mode}")
+    print(f"每个相机处理图片数量: {args.frames}")
+    print(f"处理的相机: {', '.join(args.cameras)}")
+    print("-" * 50)
+    
+    # 处理指定的相机
+    processed_cameras = []
+    for camera_name in args.cameras:
+        if camera_name in camera_configs:
+            config = camera_configs[camera_name]
+            print(f"\n处理相机: {camera_name}")
+            
+            if "pinhole" in camera_name:
+                process_pinhole_image(config['param_file'], config['input_dir'], 
+                                    config['output_dir'], args.mode, args.frames)
+            else:
+                process_fisheye_camera(config['param_file'], config['input_dir'], 
+                                     config['output_dir'], args.mode, args.frames)
+            processed_cameras.append(camera_name)
+        else:
+            print(f"警告: 未找到相机配置 {camera_name}")
+    
+    # 更新相机配置文件
+    if processed_cameras:
+        param_files = [camera_configs[cam]['param_file'] for cam in processed_cameras]
+        input_dirs = [camera_configs[cam]['input_dir'] for cam in processed_cameras]
+        
+        camera_config_path = "Parameters/camera_config.json"
+        update_camera_config(camera_config_path, param_files, input_dirs)
+    
+    print(f"\n✅ 处理完成! 共处理了 {len(processed_cameras)} 个相机: {', '.join(processed_cameras)}")
