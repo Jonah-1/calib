@@ -15,17 +15,24 @@ def transfer(source_dir, target_dir):
         print(f"源目录 {source_dir} 不存在，跳过复制。")
         return
     
+    # 确保目标目录存在
     target_path.mkdir(parents=True, exist_ok=True)
+    
+    # 删除目标目录中的内容，但保留目录本身
+    if target_path.exists():
+        for item in target_path.iterdir():
+            if (item.name == "initial_error.txt" and 
+                    item.parent.name == "auto"):
+                    print(f"保留文件: {item}")
+                    continue
+            if item.is_dir():
+                print(f"删除目录: {item}")
+                shutil.rmtree(item)
+        print(f"成功清空目标目录内容: {target_path}")
+
     
     for item in source_path.iterdir():
         target_item = target_path / item.name
-        
-        # 删除已存在的目标
-        if target_item.exists():
-            if target_item.is_dir():
-                shutil.rmtree(target_item)
-            else:
-                target_item.unlink()
         
         # 复制
         if item.is_dir():
