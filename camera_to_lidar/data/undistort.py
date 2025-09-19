@@ -83,7 +83,7 @@ def read_camera_parameters(param_file):
     return params
 
 
-def undistort_fisheye_images(param_file, input_dir, output_dir, selection_mode='random', num_frames=3):
+def undistort_fisheye_images(param_file, input_dir, output_dir, selection_mode='random', num_frames=3, camera_name=None, frame_selection_dict=None):
     """对鱼眼相机拍摄的图像进行去畸变处理"""
     # 读取参数
     params = read_camera_parameters(param_file)
@@ -135,14 +135,19 @@ def undistort_fisheye_images(param_file, input_dir, output_dir, selection_mode='
         else:
             image_files = all_image_files
             print(f"总共只有 {len(image_files)} 张图片，全部处理")
-    elif selection_mode == 'sequential':
-        # 按顺序选择指定数量的图片
-        if len(all_image_files) > num_frames:
-            image_files = all_image_files[:num_frames]
-            print(f"从 {len(all_image_files)} 张图片中按顺序选择了前 {num_frames} 张进行处理")
-        else:
-            image_files = all_image_files
-            print(f"总共只有 {len(image_files)} 张图片，全部处理")
+    elif selection_mode == 'select' and camera_name and frame_selection_dict and camera_name in frame_selection_dict:
+        # 从字典中选择特定帧
+        frame_indices = frame_selection_dict[camera_name]['frames']
+        
+        # 过滤出有效的索引
+        valid_indices = [idx for idx in frame_indices if idx < len(all_image_files)]
+        image_files = [all_image_files[idx] for idx in valid_indices]
+        
+        print(f"从 {len(all_image_files)} 张图片中选择了索引 {valid_indices} 的图片进行处理")
+        
+        if len(valid_indices) < len(frame_indices):
+            missing_indices = [idx for idx in frame_indices if idx >= len(all_image_files)]
+            print(f"警告: 索引 {missing_indices} 超出范围，已跳过")
     else:
         # 默认处理所有图片
         image_files = all_image_files
@@ -251,10 +256,10 @@ def calculate_new_camera_matrix(params, input_dir, crop_percent=1):
     
     return None, None
 
-def process_fisheye_camera(param_file, input_dir, output_dir, selection_mode='random', num_frames=3):
+def process_fisheye_camera(param_file, input_dir, output_dir, selection_mode='random', num_frames=3, camera_name=None, frame_selection_dict=None):
     try:
         print(f'开始处理camera: {input_dir}中的图片')
-        undistort_fisheye_images(param_file, input_dir, output_dir, selection_mode, num_frames)
+        undistort_fisheye_images(param_file, input_dir, output_dir, selection_mode, num_frames, camera_name, frame_selection_dict)
         print(f"所有图像已处理完成并保存到 {output_dir} 目录")
     except Exception as e:
         print(f"处理出错: {e}")
@@ -294,7 +299,7 @@ def undistort_pinhole_image(image_path, params, input_dir):
     
     return undistorted_img, camera_matrix
 
-def process_pinhole_image(param_file, input_dir, output_dir, selection_mode='random', num_frames=3):
+def process_pinhole_image(param_file, input_dir, output_dir, selection_mode='random', num_frames=3, camera_name=None, frame_selection_dict=None):
         try:
             # 清空并重新创建输出目录
             if os.path.exists(output_dir):
@@ -314,11 +319,19 @@ def process_pinhole_image(param_file, input_dir, output_dir, selection_mode='ran
                 else:
                     image_files = all_image_files
                     print(f"总共只有 {len(image_files)} 张图片，全部处理")
-            elif selection_mode == 'sequential':
+            elif selection_mode == 'select' and camera_name and frame_selection_dict and camera_name in frame_selection_dict:
                 # 按顺序选择指定数量的图片
-                if len(all_image_files) > num_frames:
-                    image_files = all_image_files[:num_frames]
-                    print(f"从 {len(all_image_files)} 张图片中按顺序选择了前 {num_frames} 张进行处理")
+                frame_indices = frame_selection_dict[camera_name]['frames']
+                
+                # 过滤出有效的索引
+                valid_indices = [idx for idx in frame_indices if idx < len(all_image_files)]
+                image_files = [all_image_files[idx] for idx in valid_indices]
+                
+                print(f"从 {len(all_image_files)} 张图片中选择了索引 {valid_indices} 的图片进行处理")
+                
+                if len(valid_indices) < len(frame_indices):
+                    missing_indices = [idx for idx in frame_indices if idx >= len(all_image_files)]
+                    print(f"警告: 索引 {missing_indices} 超出范围，已跳过")
                 else:
                     image_files = all_image_files
                     print(f"总共只有 {len(image_files)} 张图片，全部处理")
@@ -357,8 +370,8 @@ def process_pinhole_image(param_file, input_dir, output_dir, selection_mode='ran
 def parse_arguments():
     """解析命令行参数"""
     parser = argparse.ArgumentParser(description='相机图像去畸变处理工具')
-    parser.add_argument('--mode', choices=['random', 'sequential', 'all'], default='random',
-                        help='图片选择模式: random(随机选择), sequential(按顺序选择), all(处理所有图片)')
+    parser.add_argument('--mode', choices=['random', 'select'], default='random',
+                        help='图片选择模式: random(随机选择), select(选择特定帧)')
     parser.add_argument('--frames', type=int, default=3,
                         help='每个相机处理的图片数量 (默认: 3)')
     parser.add_argument('--cameras', nargs='+', 
@@ -370,6 +383,25 @@ def parse_arguments():
 if __name__ == "__main__":
     # 解析命令行参数
     args = parse_arguments()
+
+    camera_frame_selection = {
+        'pinhole-back': {
+            'frames': [0, 5, 10],
+        },
+        'pinhole-front': {
+            'frames': [2, 7, 12],
+        },
+        'fisheye-front': {
+            'frames': [1, 6, 11],
+        },
+        'fisheye-left': {
+            'frames': [3, 8, 13],
+        },
+        'fisheye-right': {
+            'frames': [4, 9, 14],
+        }
+    }
+
     
     # 相机配置
     camera_configs = {
