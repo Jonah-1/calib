@@ -5,14 +5,16 @@ lidar_to_lidar/Coarse Calibration/data1/*
 lidar_to_lidar/Coarse Calibration/data2/*
 lidar_to_lidar/Coarse Calibration/data3/*
 lidar_to_lidar/Coarse Calibration/data4/*
+lidar_to_lidar/*.bag
 camera_to_lidar/data/fisheye-front/*
 camera_to_lidar/data/fisheye-left/*
 camera_to_lidar/data/fisheye-right/*
 camera_to_lidar/data/pinhole-front/*
 camera_to_lidar/data/pinhole-back/*
+camera_to_lidar/data/masks/*
 camera_to_lidar/data/segment-anything/sam_vit_l_0b3195.pth
 camera_to_lidar/lidar2camera/manual_calib/data/*
 camera_to_lidar/lidar2camera/auto_calib/data/*
 camera_to_lidar/lidar2camera/auto_calib/*.png
 camera_to_lidar/data/*.bag
-lidar_to_lidar/*.bag
+

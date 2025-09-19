@@ -149,9 +149,9 @@ def undistort_fisheye_images(param_file, input_dir, output_dir, selection_mode='
             missing_indices = [idx for idx in frame_indices if idx >= len(all_image_files)]
             print(f"警告: 索引 {missing_indices} 超出范围，已跳过")
     else:
-        # 默认处理所有图片
-        image_files = all_image_files
-        print(f"处理所有 {len(image_files)} 张图片")
+        # 如果执行到这里说明参数配置有问题，直接退出
+        print(f"错误: 无效的选择模式 '{selection_mode}' 或缺少必要的参数")
+        raise ValueError(f"无效的图片选择配置: mode={selection_mode}, camera={camera_name}")
     
     # 处理选中的图像
     for image_file in image_files:
@@ -320,7 +320,7 @@ def process_pinhole_image(param_file, input_dir, output_dir, selection_mode='ran
                     image_files = all_image_files
                     print(f"总共只有 {len(image_files)} 张图片，全部处理")
             elif selection_mode == 'select' and camera_name and frame_selection_dict and camera_name in frame_selection_dict:
-                # 按顺序选择指定数量的图片
+                # 从字典中选择特定帧
                 frame_indices = frame_selection_dict[camera_name]['frames']
                 
                 # 过滤出有效的索引
@@ -332,13 +332,10 @@ def process_pinhole_image(param_file, input_dir, output_dir, selection_mode='ran
                 if len(valid_indices) < len(frame_indices):
                     missing_indices = [idx for idx in frame_indices if idx >= len(all_image_files)]
                     print(f"警告: 索引 {missing_indices} 超出范围，已跳过")
-                else:
-                    image_files = all_image_files
-                    print(f"总共只有 {len(image_files)} 张图片，全部处理")
             else:
-                # 默认处理所有图片
-                image_files = all_image_files
-                print(f"处理所有 {len(image_files)} 张图片")
+                # 如果执行到这里说明参数配置有问题，直接退出
+                print(f"错误: 无效的选择模式 '{selection_mode}' 或缺少必要的参数")
+                raise ValueError(f"无效的图片选择配置: mode={selection_mode}, camera={camera_name}")
             
             # 处理选中的图片
             for image_path in image_files:
@@ -433,7 +430,10 @@ if __name__ == "__main__":
     }
     
     print(f"图片选择模式: {args.mode}")
-    print(f"每个相机处理图片数量: {args.frames}")
+    if args.mode == 'select':
+        print("📋 使用字典中预定义的帧选择配置")
+    else:
+        print(f"每个相机处理图片数量: {args.frames}")
     print(f"处理的相机: {', '.join(args.cameras)}")
     print("-" * 50)
     
@@ -446,10 +446,10 @@ if __name__ == "__main__":
             
             if "pinhole" in camera_name:
                 process_pinhole_image(config['param_file'], config['input_dir'], 
-                                    config['output_dir'], args.mode, args.frames)
+                                    config['output_dir'], args.mode, args.frames, camera_name, camera_frame_selection)
             else:
                 process_fisheye_camera(config['param_file'], config['input_dir'], 
-                                     config['output_dir'], args.mode, args.frames)
+                                     config['output_dir'], args.mode, args.frames, camera_name, camera_frame_selection)
             processed_cameras.append(camera_name)
         else:
             print(f"警告: 未找到相机配置 {camera_name}")
