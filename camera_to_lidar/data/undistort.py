@@ -22,6 +22,15 @@ def update_camera_config(camera_config_path, param_files, input_dirs):
             fy = 1910.3058674355
             cx = 1917.7001038394
             cy = 1081.4421265044
+            # 计算裁剪后的新内参
+            width = 3840
+            height = 2160
+            crop_width = width - 1920
+            crop_height = height - 1536
+            left = max(0, int(crop_width/2))
+            top = max(0, int(crop_height/2))
+            cx = cx - left
+            cy = cy - top
         else:
             internal_params = read_camera_parameters(param_file)
             fx = internal_params.get("FX")
@@ -291,7 +300,7 @@ def undistort_pinhole_image(image_path, params, input_dir):
     # 去畸变
     undistorted_img = cv2.undistort(img, camera_matrix, dist_coeffs)
 
-    if input_dir==f"pinhole-front/pinhole-images":
+    if input_dir==f"pinhole-front/images":
           undistorted_img=crop_image(undistorted_img,params['CX'],params['CY'])
           camera_matrix, new_camera_matrix=calculate_new_camera_matrix(params, input_dir)
         #   print("\n原始相机矩阵:")
