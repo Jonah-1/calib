@@ -12,6 +12,7 @@ import argparse
 import json
 import os
 import gc
+import shutil
 from typing import Any, Dict, List
 import torch
 
@@ -220,6 +221,18 @@ def main(args: argparse.Namespace) -> None:
         '../pinhole-front/masks'
     ]
     
+    # 在开始处理之前，清空所有目标的masks文件夹
+    print("清空目标masks文件夹...")
+    for output_folder in output_folders:
+        if os.path.exists(output_folder):
+            try:
+                shutil.rmtree(output_folder)
+                print(f"已清空文件夹: {output_folder}")
+            except Exception as e:
+                print(f"清空文件夹 {output_folder} 时发生错误: {e}")
+        else:
+            print(f"文件夹不存在，无需清空: {output_folder}")
+    
     total_processed = 0
     image_extensions = ('.jpg', '.jpeg', '.png', '.bmp', '.tiff')
     
@@ -252,19 +265,6 @@ def main(args: argparse.Namespace) -> None:
             base = os.path.splitext(base)[0]
             save_base = os.path.join(output_folder, base)
             
-            # 检查输出文件夹是否已存在
-            if output_mode == "binary_mask":
-                if os.path.exists(save_base) and os.listdir(save_base):
-                    print(f"跳过 '{t}'，输出文件夹 '{save_base}' 已存在且不为空")
-                    total_processed += 1
-                    continue
-            else:
-                save_file = save_base + ".json"
-                if os.path.exists(save_file):
-                    print(f"跳过 '{t}'，输出文件 '{save_file}' 已存在")
-                    total_processed += 1
-                    continue
-            
             print(f"正在处理 '{t}'...")
             image = cv2.imread(t)
             if image is None:
@@ -279,6 +279,7 @@ def main(args: argparse.Namespace) -> None:
                 write_masks_to_folder(masks, save_base)
                 print(f"  -> 生成了 {len(masks)} 个掩码，保存到 '{save_base}'")
             else:
+                save_file = save_base + ".json"
                 with open(save_file, "w") as f:
                     json.dump(masks, f)
                 print(f"  -> 生成了 {len(masks)} 个掩码，保存到 '{save_file}'")
