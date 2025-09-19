@@ -164,3 +164,5 @@ if __name__ == "__main__":
 
     extractor = BagExtractor(bag_configs["bag_path"], bag_configs["lidar_topics"], bag_configs["image_topics"], bag_configs["output_dirs"])
     extractor.extract_sync_data()
+
+
