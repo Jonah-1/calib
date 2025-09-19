@@ -49,7 +49,33 @@ python save_sync.py
 运行程序对每个鱼眼相机和针孔相机的图片去畸变，并保存到对应文件夹的undistorted文件夹中
 
 ```
-python undistort.py
+python undistort.py --mode selcet
+```
+
+select模式下可以在代码里选择特征明显的帧来标定
+
+```
+if __name__ == "__main__":
+    # 解析命令行参数
+    args = parse_arguments()
+
+    camera_frame_selection = {
+        'pinhole-back': {
+            'frames': [0, 5, 10],
+        },
+        'pinhole-front': {
+            'frames': [2, 7, 12],
+        },
+        'fisheye-front': {
+            'frames': [1, 6, 11],
+        },
+        'fisheye-left': {
+            'frames': [3, 8, 13],
+        },
+        'fisheye-right': {
+            'frames': [4, 9, 14],
+        }
+    }
 ```
 
 ### 2.3 生成掩码
@@ -74,7 +100,7 @@ pip install opencv-python pycocotools matplotlib onnxruntime onnx
 运行代码，生成每个相机对应的文件夹对应的去畸变图片的掩码，并保存到对应的mask文件夹
 
 ```
-python scripts/amg.py --checkpoint sam_vit_l_0b3195.pth --model-type vit_l --stability-score-thresh 0.9 --box-nms-thresh 0.4 --stability-score-offset 0.9 --points-per-batch 32
+python scripts/amg.py --checkpoint sam_vit_l_0b3195.pth --model-type vit_l --stability-score-thresh 0.9 --box-nms-thresh 0.4 --stability-score-offset 0.9 --points-per-batch 16
 ```
 
 如果显存不够，就调小 --points-per-batch的值
@@ -82,6 +108,10 @@ python scripts/amg.py --checkpoint sam_vit_l_0b3195.pth --model-type vit_l --sta
 ### 2.4 打包数据
 
 回到camera_to_lidar/data文件夹，运行程序获得每个相机对应mannua-calib和auto-calib文件夹，为后面标定作准备
+
+```
+python organize_files.py
+```
 
 最终获得的目录结构如下
 
@@ -126,7 +156,16 @@ data
 
 ### 3.1手动标定
 
-进入camera_to_lidar/lidar2camera/manual_calib文件夹，如果需要重新编译且在本地编译失败，可以尝试以下命令
+进入camera_to_lidar/lidar2camera/manual_calib文件夹，如果需要重新编译
+
+```
+cd build
+rm -rf ./*
+cmake ..
+make
+```
+
+如果在本地编译失败，可以尝试以下命令
 
 ```
 # 拉取镜像
@@ -158,20 +197,7 @@ python update.py
 
 进入camera_to_lidar/lidar2camera/auto_calib文件夹，
 
-如果需要重新编译且在本地编译失败，可以尝试以下命令
-
-```
-# 拉取镜像
-docker pull xiaokyan/opencalib:v1
-
-#创立容器编译
-docker run -it \
---gpus all \
---env="DISPLAY=$DISPLAY" \
---volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" \
---volume="./:/workspace:rw" \
-xiaokyan/opencalib:v1
-```
+如果需要编译，操作如上
 
 运行程序自动标定
 
@@ -196,4 +222,8 @@ python convert2m128.py
 ```
 
 就得到了五个相机到主激光雷达的外参矩阵
+
+运行下列代码就获得了激光雷达和相机到车中心的外参矩阵
+
+
 

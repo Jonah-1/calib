@@ -6,15 +6,15 @@ def load_json(file_path):
     with open(file_path, 'r') as file:
         return json.load(file)
 
-def get_matrices(camera2lidar, lidar2m128, camera_key, lidar_key):
+def get_matrices(camera2lidar, lidar2m32, camera_key, lidar_key):
     """根据指定的键获取相应的矩阵"""
     camera_matrix = np.array(camera2lidar[camera_key])
-    lidar_matrix = np.array(lidar2m128[lidar_key])
+    lidar_matrix = np.array(lidar2m32[lidar_key])
     return camera_matrix, lidar_matrix
 
-def compute_frontfisheye2m(camera2lidar, lidar2m128, output_path, camera_key, lidar_key, output_key):
+def compute_frontfisheye2m(camera2lidar, lidar2m32, output_path, camera_key, lidar_key, output_key):
     # 使用新函数获取矩阵
-    camera_matrix, lidar_matrix = get_matrices(camera2lidar, lidar2m128, camera_key, lidar_key)
+    camera_matrix, lidar_matrix = get_matrices(camera2lidar, lidar2m32, camera_key, lidar_key)
 
     # 计算frontfisheye2m矩阵
     frontfisheye2m_matrix = np.dot(lidar_matrix, camera_matrix)
@@ -37,13 +37,17 @@ def compute_frontfisheye2m(camera2lidar, lidar2m128, output_path, camera_key, li
 
 # 加载JSON文件
 camera2lidar = load_json('camera2lidar.json')
-lidar2m128 = load_json('lidar2m128.json')
+lidar2m32 = load_json('lidar2m32.json')
 
 # 定义键和输出路径列表
 camera_keys = ["front-fisheye", "left-fisheye", "right-fisheye","front-pinhole","back-pinhole"]
-lidar_keys = ["front", "left", "right","front","back"]
-output_keys = ["frontfisheye2m", "leftfisheye2m", "rightfisheye2m","frontpinhole2m","backpinhole2m"]
-output_paths = "camera2m128.json"
+lidar_keys = ["front", "back", "front","front","back"]
+output_keys = ["front-fisheye2m32", "left-fisheye2m32", "right-fisheye2m32","front-pinhole2m32","back-pinhole2m32"]
+output_path = "camera2m32.json"
+
+# 清空输出文件
+with open(output_path, 'w') as f:
+    json.dump({}, f)
 # 分别调用函数
 for camera_key, lidar_key, output_key in zip(camera_keys, lidar_keys, output_keys):
-    compute_frontfisheye2m(camera2lidar, lidar2m128, output_paths, camera_key, lidar_key, output_key)
+    compute_frontfisheye2m(camera2lidar, lidar2m32, output_path, camera_key, lidar_key, output_key)

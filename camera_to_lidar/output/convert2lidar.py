@@ -2,6 +2,8 @@ import json
 import numpy as np
 
 def invert_matrices_in_json(input_file, output_file):
+
+    
     # 读取 JSON 文件
     with open(input_file, 'r') as f:
         data = json.load(f)
@@ -25,4 +27,8 @@ def invert_matrices_in_json(input_file, output_file):
 # 使用示例
 input_file = 'lidar2camera.json'
 output_file = 'camera2lidar.json'
+# 清空输出文件
+with open(output_file, 'w') as f:
+    json.dump({}, f)
+
 invert_matrices_in_json(input_file, output_file)
