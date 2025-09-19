@@ -123,8 +123,10 @@ def undistort_fisheye_images(param_file, input_dir, output_dir, selection_mode='
     os.makedirs(output_dir, exist_ok=True)
     print(f"已清空并重新创建输出目录: {output_dir}")
     
-    # 获取输入目录中的所有图像
+    # 获取输入目录中的所有图像并按数字排序
     all_image_files = glob.glob(os.path.join(input_dir, '*.png')) + glob.glob(os.path.join(input_dir, '*.jpg'))
+    # 按文件名中的数字进行排序
+    all_image_files.sort(key=lambda x: int(re.findall(r'\d+', os.path.basename(x))[0]) if re.findall(r'\d+', os.path.basename(x)) else 0)
     
     # 根据选择模式处理图片
     if selection_mode == 'random':
@@ -309,6 +311,8 @@ def process_pinhole_image(param_file, input_dir, output_dir, selection_mode='ran
             
             params = read_camera_parameters(param_file)
             all_image_files = glob.glob(os.path.join(input_dir, '*.jpg'))+glob.glob(os.path.join(input_dir, '*.png'))
+            # 按文件名中的数字进行排序
+            all_image_files.sort(key=lambda x: int(re.findall(r'\d+', os.path.basename(x))[0]) if re.findall(r'\d+', os.path.basename(x)) else 0)
             
             # 根据选择模式处理图片
             if selection_mode == 'random':
