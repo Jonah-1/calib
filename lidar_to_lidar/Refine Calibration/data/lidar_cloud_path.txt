@@ -1,0 +1,6 @@
+device_id: 0
+path: data/original_target.pcd
+device_id: 1
+path: data/transformed_source.pcd
+device_id: 2
+path: data/transformed_source.pcd

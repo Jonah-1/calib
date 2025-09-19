@@ -1,5 +1,5 @@
 lidar_to_lidar/storaged-data/*
-lidar_to_lidar/Refine Calibration/data
+lidar_to_lidar/Refine Calibration/data/*.pcd
 lidar_to_lidar/Refine Calibration/stitching.pcd
 lidar_to_lidar/Coarse Calibration/data1/*
 lidar_to_lidar/Coarse Calibration/data2/*
@@ -11,3 +11,8 @@ camera_to_lidar/data/fisheye-right/*
 camera_to_lidar/data/pinhole-front/*
 camera_to_lidar/data/pinhole-back/*
 camera_to_lidar/data/segment-anything/sam_vit_l_0b3195.pth
+camera_to_lidar/lidar2camera/manual_calib/data/*
+camera_to_lidar/lidar2camera/auto_calib/data/*
+camera_to_lidar/lidar2camera/auto_calib/*.png
+camera_to_lidar/data/*.bag
+lidar_to_lidar/*.bag
