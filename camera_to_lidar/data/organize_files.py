@@ -36,7 +36,7 @@ def organize_files(camera_folders,sub_folders):
 
     for camera_folder in camera_folders:
         auto_calib_dir = os.path.join(camera_folder, "auto-calib")
-        mannual_calib_dir = os.path.join(camera_folder, "mannual-calib")
+        manual_calib_dir = os.path.join(camera_folder, "manual-calib")
 
         #清空原来的数据    
         if os.path.exists(auto_calib_dir):
@@ -46,12 +46,12 @@ def organize_files(camera_folders,sub_folders):
         else:
             os.makedirs(auto_calib_dir)
             
-        if os.path.exists(mannual_calib_dir):
-            shutil.rmtree(mannual_calib_dir)
-            print(f"已清空: {mannual_calib_dir}")
-            os.makedirs(mannual_calib_dir)
+        if os.path.exists(manual_calib_dir):
+            shutil.rmtree(manual_calib_dir)
+            print(f"已清空: {manual_calib_dir}")
+            os.makedirs(manual_calib_dir)
         else:
-            os.makedirs(mannual_calib_dir)
+            os.makedirs(manual_calib_dir)
 
         # 构建当前camera_folder的完整sub_folder路径
         camera_sub_folders = [os.path.join(camera_folder, sf) for sf in sub_folders]
@@ -83,19 +83,19 @@ def organize_files(camera_folders,sub_folders):
         #开始复制    
         for basename in basenames:
             save_auto_folder=os.path.join(auto_calib_dir,basename)
-            save_mannual_folder=os.path.join(mannual_calib_dir,basename)
+            save_manual_folder=os.path.join(manual_calib_dir,basename)
             os.makedirs(save_auto_folder, exist_ok=True)
-            os.makedirs(save_mannual_folder, exist_ok=True)
+            os.makedirs(save_manual_folder, exist_ok=True)
             for file_path in targets[basename]:
                 if 'masks' in str(file_path):
                     shutil.copytree(file_path, os.path.join(save_auto_folder, 'masks'))
                 else:
                     shutil.copy2(file_path, os.path.join(save_auto_folder, os.path.basename(file_path)))
-                    shutil.copy2(file_path, os.path.join(save_mannual_folder, os.path.basename(file_path)))
+                    shutil.copy2(file_path, os.path.join(save_manual_folder, os.path.basename(file_path)))
 
-def copy_json_to_mannualcalib(camera_folders):
+def copy_json_to_manualcalib(camera_folders):
     """
-    根据每个相机的参数文件，生成包含具体内参的JSON文件到mannual-calib的所有最深层子文件夹中
+    根据每个相机的参数文件，生成包含具体内参的JSON文件到manual-calib的所有最深层子文件夹中
     """
     intrinsic_file = "center_camera-intrinsic.json"
     extrinsic_file = "top_center_lidar-to-center_camera-extrinsic.json"
@@ -109,8 +109,8 @@ def copy_json_to_mannualcalib(camera_folders):
     processed_subfolders = 0
     
     for camera_folder in camera_folders:
-        mannualcalib_dir = os.path.join(camera_folder, "mannual-calib")
-        if not os.path.isdir(mannualcalib_dir):
+        manualcalib_dir = os.path.join(camera_folder, "manual-calib")
+        if not os.path.isdir(manualcalib_dir):
             continue
 
         # 确定对应的参数文件路径
@@ -129,7 +129,7 @@ def copy_json_to_mannualcalib(camera_folders):
                 fy = 1910.3058674355
                 cx = 1917.7001038394
                 cy = 1081.4421265044
-                            # 计算裁剪后的新内参
+                # 计算裁剪后的新内参
                 width = 3840
                 height = 2160
                 crop_width = width - 1920
@@ -216,8 +216,8 @@ def copy_json_to_mannualcalib(camera_folders):
             }
 
         # 遍历时间戳子文件夹
-        for subfolder_name in os.listdir(mannualcalib_dir):
-            subfolder_path = os.path.join(mannualcalib_dir, subfolder_name)
+        for subfolder_name in os.listdir(manualcalib_dir):
+            subfolder_path = os.path.join(manualcalib_dir, subfolder_name)
             if not os.path.isdir(subfolder_path):
                 continue
             
@@ -235,7 +235,7 @@ def copy_json_to_mannualcalib(camera_folders):
             print(f"已生成JSON文件到: {subfolder_path}")
     
     if processed_subfolders == 0:
-        print(f"警告: 在任何相机文件夹下都没有找到 'mannual-calib' 子文件夹！")
+        print(f"警告: 在任何相机文件夹下都没有找到 'manual-calib' 子文件夹！")
     else:
         print(f"已向 {processed_subfolders} 个子文件夹中生成了 {copied_files_count} 个JSON文件")
 
@@ -318,7 +318,7 @@ def copy_calib_to_autocalib(camera_folders):
 def main():
     parser = argparse.ArgumentParser(description='将源文件夹中的同名文件整理到两个指定文件夹中')
     parser.add_argument('--copy-json-only', action='store_true',
-                        help='只复制JSON文件到mannual-calib文件夹的子文件夹中，不执行整理操作')
+                        help='只复制JSON文件到manual-calib文件夹的子文件夹中，不执行整理操作')
     
     args = parser.parse_args()
     
@@ -327,7 +327,7 @@ def main():
     
     organize_files(camera_folders,sub_folders)
     copy_calib_to_autocalib(camera_folders)
-    copy_json_to_mannualcalib(camera_folders)
+    copy_json_to_manualcalib(camera_folders)
     
     src_dirs = []
     for cam_folder in camera_folders:
@@ -342,16 +342,12 @@ def main():
         return
 
     if args.copy_json_only:
-        print(f"开始复制JSON文件到 'mannual-calib' 的所有子文件夹...")
-        copy_json_to_mannualcalib(camera_folders)
+        print(f"开始复制JSON文件到 'manual-calib' 的所有子文件夹...")
+        copy_json_to_manualcalib(camera_folders)
     else:
         print(f"自动发现的源文件夹: {', '.join(src_dirs)}")
-        print(f"目标结构: camera_folder/auto-calib/..., camera_folder/mannual-calib/... ")
+        print(f"目标结构: camera_folder/auto-calib/..., camera_folder/manual-calib/... ")
         print("开始整理文件...\n")
-        
-
-        
-
-
+ 
 if __name__ == "__main__":
     main() 

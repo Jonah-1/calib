@@ -5,13 +5,8 @@
         "device_type": "camera",
         "param_type": "intrinsic",
         "param": {
-<<<<<<< HEAD
-            "img_dist_w": 672,
-            "img_dist_h": 544,
-=======
             "img_dist_w": 1440,
             "img_dist_h": 1152,
->>>>>>> 38a7e901473e2eb7cd9f5f07a3e750ff014220b6
             "cam_K": {
                 "rows": 3,
                 "cols": 3,
