@@ -51,6 +51,7 @@ def update_camera_config(camera_config_path, param_files, input_dirs):
             "rowMajor": True
         }
 
+        print(f"相机{input_dir.split('/')[0]}内参",camera_entry["camera_internal"])
         # 添加到配置列表
         camera_config.append(camera_entry)
 
@@ -366,13 +367,7 @@ def process_pinhole_image(param_file, input_dir, output_dir, selection_mode='ran
                 except Exception as e:
                     print(f"处理图像 {image_path} 时出错: {str(e)}")
 
-            # 打印新的相机参数
-            print("新的相机参数:")
-            print(f"FX: {new_camera_matrix[0, 0]:.10f}")
-            print(f"FY: {new_camera_matrix[1, 1]:.10f}")
-            print(f"CX: {new_camera_matrix[0, 2]:.10f}")
-            print(f"CY: {new_camera_matrix[1, 2]:.10f}\n")
-            
+
         except Exception as e:
             print(f"处理图像时出错: {str(e)}")
 
@@ -382,8 +377,8 @@ def parse_arguments():
     parser = argparse.ArgumentParser(description='相机图像去畸变处理工具')
     parser.add_argument('--mode', choices=['random', 'select'], default='random',
                         help='图片选择模式: random(随机选择), select(选择特定帧)')
-    parser.add_argument('--frames', type=int, default=3,
-                        help='每个相机处理的图片数量 (默认: 3)')
+    parser.add_argument('--frames', type=int, default=2,
+                        help='每个相机处理的图片数量 (默认: 2)')
     parser.add_argument('--cameras', nargs='+', 
                         choices=['pinhole-back', 'pinhole-front', 'fisheye-front', 'fisheye-left', 'fisheye-right'],
                         default=['pinhole-back', 'pinhole-front', 'fisheye-front', 'fisheye-left', 'fisheye-right'],
@@ -396,19 +391,19 @@ if __name__ == "__main__":
 
     camera_frame_selection = {
         'pinhole-back': {
-            'frames': [0, 5, 10],
+            'frames': [101, 107],
         },
         'pinhole-front': {
-            'frames': [2, 7, 12],
+            'frames': [137, 140],
         },
         'fisheye-front': {
-            'frames': [1, 6, 11],
+            'frames': [173, 180],
         },
         'fisheye-left': {
-            'frames': [3, 8, 13],
+            'frames': [97,107],
         },
         'fisheye-right': {
-            'frames': [4, 9, 14],
+            'frames': [53, 62],
         }
     }
 

@@ -32,27 +32,40 @@ export LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libtiff.so.5
 
 ## 1 数据采集
 
-首先分别使用前后左右的各相机（前面有两个）同时与各自最近的前后左右激光雷达同时采集点云图片，保存为对应的四个bag包（camera-front.bag，camera-back.bag，camera-left.bag, camera-right.bag）
+首先分别使用前后左右的各相机（前面有两个）同时与各自最近的前后左右激光雷达同时采集点云图片，保存到一个文件夹，文件夹目录结构为
+
+```
+0923pcdpng    #保存的名字，可更改
+├── output_png0
+├── output_png4
+├── output_png5
+├── output_png6
+├── output_png7
+├── front
+├── back
+```
 
 ## 2 数据处理
 
 ### 2.1 数据读取
 
-进入camera_to_lidar/data文件夹，运行程序，读取每个bag包里的点云和相机图片数据，并会保存到各对应名字的文件夹中（fisheye-front，fisheye-left，fisheye-right, pinhole-back, pinhole-front）
+进入camera_to_lidar/data文件夹，运行程序，把下载好的数据转到到各对应名字的文件夹中（fisheye-front，fisheye-left，fisheye-right, pinhole-back, pinhole-front）
 
 ```
-python save_sync.py
+python process.py --dir 0923pcdpng/ --sync --time-tolerance 0.1
 ```
+
+通过dir指定下载好的数据文件夹，--sync 同步pcd和png时间戳，--time-tolerance 同步最小容忍时间
 
 ### 2.2 去畸变
 
 运行程序对每个鱼眼相机和针孔相机的图片去畸变，并保存到对应文件夹的undistorted文件夹中
 
 ```
-python undistort.py --mode selcet
+python undistort.py --mode select
 ```
 
-select模式下可以在代码里选择特征明显的帧来标定
+select模式下可以在代码里选择特征明显的帧来标定，改为random的话则随机选2张
 
 ```
 if __name__ == "__main__":
@@ -61,19 +74,19 @@ if __name__ == "__main__":
 
     camera_frame_selection = {
         'pinhole-back': {
-            'frames': [0, 5, 10],
+            'frames': [101, 107],
         },
         'pinhole-front': {
-            'frames': [2, 7, 12],
+            'frames': [137, 140],
         },
         'fisheye-front': {
-            'frames': [1, 6, 11],
+            'frames': [173, 180],
         },
         'fisheye-left': {
-            'frames': [3, 8, 13],
+            'frames': [97,107],
         },
         'fisheye-right': {
-            'frames': [4, 9, 14],
+            'frames': [53, 62],
         }
     }
 ```
@@ -100,7 +113,7 @@ pip install opencv-python pycocotools matplotlib onnxruntime onnx
 运行代码，生成每个相机对应的文件夹对应的去畸变图片的掩码，并保存到对应的mask文件夹
 
 ```
-python scripts/amg.py --checkpoint sam_vit_l_0b3195.pth --model-type vit_l --stability-score-thresh 0.9 --box-nms-thresh 0.4 --stability-score-offset 0.9 --points-per-batch 16
+python scripts/amg.py --checkpoint sam_vit_l_0b3195.pth --model-type vit_l --stability-score-thresh 0.9 --box-nms-thresh 0.4 --stability-score-offset 0.9 --points-per-batch 32
 ```
 
 如果显存不够，就调小 --points-per-batch的值
@@ -110,7 +123,7 @@ python scripts/amg.py --checkpoint sam_vit_l_0b3195.pth --model-type vit_l --sta
 回到camera_to_lidar/data文件夹，运行程序获得每个相机对应mannua-calib和auto-calib文件夹，为后面标定作准备
 
 ```
-python organize_files.py
+python organize_files.py 
 ```
 
 最终获得的目录结构如下
@@ -149,7 +162,7 @@ data
 运行下列程序，针对不同的相机把上面准备好的auto-calib和mannual-calib数据分别送到自动标定和手动标定文件夹
 
 ```
- python transfer-files.py --sort pinhole-front
+ python transfer-files.py --sort fisheye-left
 ```
 
 --sort 为要进行标定的相机名称
@@ -184,7 +197,7 @@ xiaokyan/opencalib:v1
 
 ```
 chmod +x manual-calib.sh #第一次使用才用输
-./manual-calib.sh 190
+./manual-calib.sh 97
 ```
 
 命令中的数字代表第几帧，实际运行时全部替换为实际选中的帧数，运行完成后camera_to_lidar/lidar2camera/manual_calib/calibration_0.txt中的矩阵就是粗标定好的激光雷达到相机的矩阵，运行下面的程序把它更新到所有数据的初始外参程序中
@@ -218,12 +231,18 @@ bash auto-calib.sh
 
 ```
 python convert2lidar.py
-python convert2m128.py
+python convert2m32.py
 ```
 
 就得到了五个相机到主激光雷达的外参矩阵
 
 运行下列代码就获得了激光雷达和相机到车中心的外参矩阵
+
+```
+python final-extrinsic.py
+```
+
+
 
 
 

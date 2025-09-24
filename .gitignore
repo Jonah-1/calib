@@ -6,6 +6,7 @@ lidar_to_lidar/Coarse Calibration/data2/*
 lidar_to_lidar/Coarse Calibration/data3/*
 lidar_to_lidar/Coarse Calibration/data4/*
 lidar_to_lidar/*.bag
+camera_to_lidar/data/0923pcdpng
 camera_to_lidar/data/fisheye-front/*
 !camera_to_lidar/data/fisheye-front/.gitkeep
 camera_to_lidar/data/fisheye-left/*

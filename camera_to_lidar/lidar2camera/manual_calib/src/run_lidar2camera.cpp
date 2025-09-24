@@ -254,9 +254,11 @@ int main(int argc, char **argv) {
   // view
   int width = img.cols;
   int height = img.rows;
-  std::cout << "width:" << width << " , height:" << height << std::endl;
-  // const int width = 1920, height = 1200;
-  pangolin::CreateWindowAndBind("lidar2camera player", width, height);
+  int panel_width = 200;  // 控制面板宽度
+  int window_width = width + panel_width;  // 窗口总宽度 = 图片宽度 + 面板宽度
+  std::cout << "image width:" << width << " , height:" << height << std::endl;
+  std::cout << "window width:" << window_width << " , height:" << height << std::endl;
+  pangolin::CreateWindowAndBind("lidar2camera player", window_width, height);
 
   glEnable(GL_DEPTH_TEST);
   // glDepthMask(GL_TRUE);
@@ -268,8 +270,7 @@ int main(int argc, char **argv) {
 
   pangolin::View &project_image =
       pangolin::Display("project")
-          .SetBounds(0.0, 1.0, pangolin::Attach::Pix(150), 1.0,
-                     -1.0 * (width - 200) / height)
+          .SetBounds(0.0, 1.0, pangolin::Attach::Pix(panel_width), 1.0)
           .SetLock(pangolin::LockLeft, pangolin::LockTop);
 
   unsigned char *imageArray = new unsigned char[3 * width * height];
@@ -278,7 +279,7 @@ int main(int argc, char **argv) {
 
   // control panel
   pangolin::CreatePanel("cp").SetBounds(pangolin::Attach::Pix(30), 1.0, 0.0,
-                                        pangolin::Attach::Pix(150));
+                                        pangolin::Attach::Pix(panel_width));
   pangolin::Var<bool> displayMode("cp.Intensity Color", false,
                                   true);                            // logscale
   pangolin::Var<bool> filterMode("cp.Overlap Filter", false, true); // logscale

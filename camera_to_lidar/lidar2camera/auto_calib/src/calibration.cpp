@@ -180,8 +180,7 @@ void Calibrator::Segment_pc(const pcl::PointCloud<pcl::PointXYZI>::Ptr cloud,
     pcl::PointCloud<pcl::PointXYZI>::Ptr cloud_out(new pcl::PointCloud<pcl::PointXYZI>);
     int plane_size = indices_plane->indices.size();
     pcl::PointIndices::Ptr indices_plane_all(new pcl::PointIndices);
-    std::cout << "Plane points: " << plane_size << std::endl;
-    while (plane_size >1500)
+    while (plane_size > 2000)
     {
         std::cout << "Plane points: " << plane_size << std::endl;
         seg_indices.push_back(*indices_plane);
