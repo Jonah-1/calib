@@ -341,7 +341,6 @@ void Calibrator::CalculateCalibrationErrors() {
       if (kdtree.nearestKSearch(point, 1, pointIdxNKNSearch, pointNKNSquaredDistance) > 0) {
         double distance = sqrt(pointNKNSquaredDistance[0]);
         
-        // 只统计1米内有对应点的点
         if (distance <= max_distance_threshold) {
           total_error += pointNKNSquaredDistance[0]; // 使用平方距离
           valid_point_count++;
@@ -357,5 +356,5 @@ void Calibrator::CalculateCalibrationErrors() {
   }
   
   std::cout << "[INFO] 标定误差计算完成" << std::endl; 
-  
+
 }
