@@ -37,12 +37,11 @@ def compute_frontfisheye2m(camera2lidar, lidar2m32, output_path, camera_key, lid
 
 # 加载JSON文件
 camera2lidar = load_json('camera2lidar.json')
-lidar2m32 = load_json('lidar2m32.json')
+m32tocamera= "m32tocamera.json"
 
 # 定义键和输出路径列表
 camera_keys = ["front-fisheye", "left-fisheye", "right-fisheye","front-pinhole","back-pinhole"]
-lidar_keys = ["front", "back", "front","front","back"]
-output_keys = ["front-fisheye2m32", "left-fisheye2m32", "right-fisheye2m32","front-pinhole2m32","back-pinhole2m32"]
+output_keys = ["m32tofront-fisheye2", "m32toleft-fisheye2", "m32toright-fisheye","m32tofront-pinhole","back-pinhole2m32"]
 output_path = "camera2m32.json"
 
 # 清空输出文件

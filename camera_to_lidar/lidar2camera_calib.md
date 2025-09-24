@@ -1,6 +1,6 @@
 ## 0 环境配置
 
-进入calibration/camera_to_lidar文件夹
+进入根目录下 camera_to_lidar文件夹
 
 ```
 conda activate calib
@@ -223,11 +223,9 @@ bash auto-calib.sh
 
 ## 4数据保存
 
-标好后把camera_to_lidar/lidar2camera/auto_calib/extrinsic.txt中的Extrinsic矩阵复制到camera_to_lidar/output/lidar2camera.json中，替换对应相机的外参矩阵
+标好后把camera_to_lidar/lidar2camera/auto_calib/extrinsic.txt中的Extrinsic矩阵复制到根目录下 output/lidar2camera.json中，替换对应相机的外参矩阵
 
-五个雷达到相机的外参矩阵计算好后，把之前lidar_to_lidar中标好的lidar2m128 .json复制到camera_to_lidar/output，替换原json文件
-
-然后在camera_to_lidar/output下依次运行下面的程序
+在五个雷达到相机的外参矩阵计算好后，在output下依次运行下面的程序
 
 ```
 python convert2lidar.py

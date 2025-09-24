@@ -5,9 +5,9 @@ def read_transform_matrices(filename):
     with open(filename, 'r') as f:
         lines = f.readlines()
     
-    # 解析source transform矩阵
+    # 解析transform矩阵
     source_matrix_lines = []
-    i = 1  # 跳过"source transform:"行
+    i = 0  # 
     while i < len(lines):
         if lines[i].strip():  # 忽略空行
             source_matrix_lines.append(lines[i].strip())
@@ -25,9 +25,9 @@ def read_transform_matrices(filename):
 # 从文件读取变换矩阵
 transform_source1 = read_transform_matrices('transform_matrices.txt')
 
-transform_source2=np.array([[0.99970985, 0.01768318, -0.01635512, 0.01567256],
-  [-0.01797498, 0.99967876, -0.01787042, 0.06723239],
-  [0.01603386, 0.01815922, 0.99970651, -0.06077816],
+transform_source2=np.array([[0.99960345, 0.01759227, -0.02199011, 0.06911865],
+  [-0.01770544, 0.99983095, -0.00496248, 0.00524328],
+  [0.02189910, 0.00534985, 0.99974597, -0.02494814],
   [0.00000000, 0.00000000, 0.00000000, 1.00000000]])
 
 
@@ -40,12 +40,17 @@ transform_source=transform_source2@transform_source1
 
 # ])
 
-source_matrix_str = np.array2string(transform_source, separator=',')
-print("source transform:\n{}\n".format(source_matrix_str))
-np.save("transform.npy", transform_source)
+# 格式化打印矩阵
+matrix_str = np.array2string(
+    transform_source,
+    separator=', ',
+    formatter={'float_kind': lambda x: f"{x:.8f}"},  # 保留8位小数
+    max_line_width=np.inf  # 确保矩阵在一行内打印
+)
 
-# 格式化打印矩阵，添加逗号
-matrix_str = np.array2string(transform_source, separator=', ')# 格式化打印矩阵，添加逗号
-# 保存矩阵到txt文件
+# 打印矩阵
+print(matrix_str)
+
+# 保存矩阵到文本文件
 with open("transform_matrices.txt", "w") as f:
-    f.write("transform:\n{}".format(matrix_str))
+    f.write(matrix_str)

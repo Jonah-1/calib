@@ -14,16 +14,18 @@ transform1 = np.array([
 
 transform=transform1
 
+# 格式化打印矩阵
+matrix_str = np.array2string(
+    transform,
+    separator=', ',
+    formatter={'float_kind': lambda x: f"{x:.8f}"},  # 保留8位小数
+    max_line_width=np.inf  # 确保矩阵在一行内打印
+)
 
-# 格式化打印矩阵，添加逗号
-matrix_str = np.array2string(transform, separator=', ')
+# 打印矩阵
+print(matrix_str)
 
-
-print("transform:\n{}".format(matrix_str))
-
-# 保存矩阵到npy文件
-np.save("transform.npy", transform)
-
-# 保存矩阵到txt文件
+# 保存矩阵到文本文件
 with open("transform_matrices.txt", "w") as f:
-    f.write("transform:\n{}".format(matrix_str))
+    f.write(matrix_str)
+

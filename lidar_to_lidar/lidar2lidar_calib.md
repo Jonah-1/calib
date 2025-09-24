@@ -63,7 +63,7 @@ storaged-data
 
 ### 3.1粗标定
 
-首先把storaged-data下back文件夹的data和data1文件夹复制到Coarse Calibration文件夹中替换对应的两个文件，然后进入Coarse Calibration文件夹
+首先把storaged-data下back文件夹的data和data1文件夹复制到coarse Calibration文件夹中替换对应的两个文件，然后进入coarse Calibration文件夹
 
 提取对应激光雷达到顶部激光雷达的变换矩阵
 
@@ -87,7 +87,7 @@ python apply_trasoform.py
 
 ### 3.2 精标定
 
-进入Refine Calibration文件夹进行编译
+进入refine Calibration文件夹进行编译
 
 prerequistites：
 
@@ -108,13 +108,13 @@ mkdir -p build && cd build
 cmake .. && make
 ```
 
-把Coarse Calibration/data3文件夹下的所有pcd文件复制到Refine Calibration/data中然后将其放入总的data目录中，进行精细标定
+把coarse Calibration/data3文件夹下的所有pcd文件复制到refine Calibration/data中然后将其放入总的data目录中，进行精细标定
 
 ```
 ./bin/run_lidar2lidar data/lidar_cloud_path.txt data/initial_extrinsic.txt
 ```
 
-执行成功后会获得calibration_results.txt,将其中第一个矩阵复制到Coarse Calibration/get_total_matrix.py中，替换transform_source2，并在Coarse Calibration文件夹下运行
+执行成功后会获得calibration_results.txt,将其中第一个矩阵复制到coarse Calibration/get_total_matrix.py中，替换transform_source2，并在coarse Calibration文件夹下运行
 
 ```
 python get_final_matrix.py

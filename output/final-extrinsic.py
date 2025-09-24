@@ -11,19 +11,19 @@ def get_matrices(file_data, input_key):
     matrix = np.array(file_data[input_key])
     return matrix
 
-def compute_sensor2mcenter(camera2lidar, lidar2m32, output_path, input_key, output_key):
+def compute_sensor2mcenter(camera2m32, lidar2m32, output_path, input_key, output_key):
     #工装值
     center_matrix = np.array([[1, 0, 0, 1.2], [0, 1, 0, 0], [0, 0, 1, 1.76], [0, 0, 0, 1]])
 
-    if '-' in input_key:
-        input_data = camera2lidar
-    elif input_key == "zhulidar":
+    if 'CAM' in input_key:
+        input_data = camera2m32
+    elif input_key == "LIDAR_ZHU":
         input_data = np.eye(4)
     else:
         input_data = lidar2m32
 
     # 使用新函数获取矩阵
-    if input_key == "zhulidar":
+    if input_key == "LIDAR_ZHU":
         matrix = input_data
     else:
         matrix = get_matrices(input_data, input_key)
@@ -52,15 +52,15 @@ camera2m32 = load_json('camera2m32.json')
 lidar2m32 = load_json('lidar2m32.json')
 
 # 定义键和输出路径列表
-camera_keys = ["front-fisheye2m32", "left-fisheye2m32", "right-fisheye2m32","front-pinhole2m32","back-pinhole2m32"]
-lidar_keys = ["front","back"]
-output_keys = ["front-fisheye", "left-fisheye", "right-fisheye","front-pinhole","back-pinhole","frontlidar","backlidar","zhulidar"]
+camera_keys = ["CAM_FRONT_8M", "CAM_FRONT_3M", "CAM_LEFT_3M", "CAM_RIGHT_3M","CAM_BACK_3M"]
+lidar_keys = ["LIDAR_FRONT","LIDAR_BACK"]
+output_keys = ["CAM_FRONT_8M", "CAM_FRONT_3M", "CAM_LEFT_3M", "CAM_RIGHT_3M","CAM_BACK_3M","LIDAR_FRONT", "LIDAR_BACK","LIDAR_ZHU"]
 output_path = "final-extrinsic.json"
 
 # 清空输出文件
 with open(output_path, 'w') as f:
     json.dump({}, f)
 # 分别调用函数
-all_keys = camera_keys + lidar_keys+ ["zhulidar"]
+all_keys = camera_keys + lidar_keys+ ["LIDAR_ZHU"]
 for input_key, output_key in zip(all_keys, output_keys):
     compute_sensor2mcenter(camera2m32, lidar2m32, output_path, input_key, output_key)
