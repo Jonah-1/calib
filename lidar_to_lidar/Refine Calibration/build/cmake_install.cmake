@@ -1,4 +1,4 @@
-# Install script for directory: /home/ljh/project/factory/calibration/lidar_to_lidar/Refine Calibration
+# Install script for directory: /home/ljh/project/factory/Calibration1.0/lidar_to_lidar/Refine Calibration
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -45,5 +45,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/ljh/project/factory/calibration/lidar_to_lidar/Refine Calibration/build/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/ljh/project/factory/Calibration1.0/lidar_to_lidar/Refine Calibration/build/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

@@ -43,6 +43,7 @@ public:
                         pcl::PointCloud<pcl::PointXYZI>::Ptr ng_cloud,
                         PlaneParam &plane);
   std::map<int32_t, Eigen::Matrix4d> GetFinalTransformation();
+  void CalculateCalibrationErrors();
 
 private:
   std::map<int32_t, pcl::PointCloud<pcl::PointXYZI>> pcs_;

@@ -137,6 +137,8 @@ int main(int argc, char *argv[]) {
   std::cout << "calib cost "
             << std::chrono::duration<double>(time_end - time_begin).count()
             << "s" << std::endl;
+  
+  // 标定误差计算已在Calibrate()方法中完成
   std::map<int32_t, Eigen::Matrix4d> refined_extrinsics =
       calibrator.GetFinalTransformation();
   // stitching

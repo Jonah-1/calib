@@ -7,6 +7,7 @@
 #include "calibration.hpp"
 
 #include <pcl/common/transforms.h>
+#include <iomanip>
 #include <pcl/conversions.h>
 #include <pcl/features/normal_3d.h>
 #include <pcl/filters/conditional_removal.h>
@@ -243,6 +244,9 @@ void Calibrator::Calibrate() {
     registrator_->RegistrationByICP2(transform, final_opt_result);
     refined_extrinsics_.insert(std::make_pair(slave_id, final_opt_result));
   }
+  
+  // 计算所有设备的标定误差
+  CalculateCalibrationErrors();
 }
 
 bool Calibrator::GroundPlaneExtraction(
@@ -277,4 +281,80 @@ bool Calibrator::GroundPlaneExtraction(
 
 std::map<int32_t, Eigen::Matrix4d> Calibrator::GetFinalTransformation() {
   return refined_extrinsics_;
+}
+
+void Calibrator::CalculateCalibrationErrors() {
+  std::cout << "[INFO] 开始计算标定误差..." << std::endl;
+  int32_t master_id = 0;
+  auto master_iter = pcs_.find(master_id);
+  if (master_iter == pcs_.end()) {
+    std::cout << "[ERROR] 找不到主激光雷达点云数据" << std::endl;
+    return;
+  }
+  
+  // 直接使用原始点云，不进行地面分离
+  pcl::PointCloud<pcl::PointXYZI> master_pc = master_iter->second;
+  pcl::PointCloud<pcl::PointXYZI>::Ptr master_pc_ptr = master_pc.makeShared();
+  
+  // 为每个从激光雷达计算误差
+  std::cout << "[DEBUG] 开始遍历从激光雷达..." << std::endl;
+  for (auto iter = pcs_.begin(); iter != pcs_.end(); iter++) {
+    int32_t slave_id = iter->first;
+    std::cout << "[DEBUG] 处理设备ID: " << slave_id << std::endl;
+    if (slave_id == master_id) {
+      continue;
+    }
+    
+    auto extrinsic_iter = refined_extrinsics_.find(slave_id);
+    if (extrinsic_iter == refined_extrinsics_.end()) {
+      std::cout << "[ERROR] 找不到设备ID " << slave_id << " 的标定结果" << std::endl;
+      continue;
+    }
+    
+    Eigen::Matrix4d final_transform = extrinsic_iter->second;
+    
+    // 获取从激光雷达点云
+    pcl::PointCloud<pcl::PointXYZI> slave_pc = iter->second;
+    pcl::PointCloud<pcl::PointXYZI>::Ptr slave_pc_ptr = slave_pc.makeShared();
+    
+    // 设置点云数据（使用原始点云）
+    registrator_->SetTargetCloud(master_pc_ptr, master_pc_ptr, master_pc_ptr);
+    registrator_->SetSourceCloud(slave_pc_ptr, slave_pc_ptr, slave_pc_ptr);
+    
+    // 计算最近邻误差
+    pcl::KdTreeFLANN<pcl::PointXYZI> kdtree;
+    kdtree.setInputCloud(master_pc_ptr);
+    
+    double total_error = 0.0;
+    int valid_point_count = 0;
+    const double max_distance_threshold = 0.5;
+    
+    // 变换从激光雷达点云到主激光雷达坐标系
+    pcl::PointCloud<pcl::PointXYZI> transformed_slave_pc;
+    pcl::transformPointCloud(*slave_pc_ptr, transformed_slave_pc, final_transform);
+    
+    // 对每个变换后的点计算最近邻距离
+    for (const auto& point : transformed_slave_pc.points) {
+      std::vector<int> pointIdxNKNSearch(1);
+      std::vector<float> pointNKNSquaredDistance(1);
+      
+      if (kdtree.nearestKSearch(point, 1, pointIdxNKNSearch, pointNKNSquaredDistance) > 0) {
+        double distance = sqrt(pointNKNSquaredDistance[0]);
+        
+        // 只统计1米内有对应点的点
+        if (distance <= max_distance_threshold) {
+          total_error += pointNKNSquaredDistance[0]; // 使用平方距离
+          valid_point_count++;
+        }
+      }
+    }
+    
+    double rmse_error = (valid_point_count > 0) ? sqrt(total_error / valid_point_count) : 0.0;
+    
+    std::cout << "[INFO] 设备ID: " << slave_id 
+              << ", RMSE: " << rmse_error  
+              << std::endl;
+  }
+  
+  std::cout << "[INFO] 标定误差计算完成" << std::endl;
 }

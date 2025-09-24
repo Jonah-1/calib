@@ -6,5 +6,5 @@ CXX_FLAGS = -std=c++11 -g -Wall    -std=gnu++14
 
 CXX_DEFINES = -Dqh_QHpointer -DvtkRenderingContext2D_AUTOINIT="1(vtkRenderingContextOpenGL2)" -DvtkRenderingCore_AUTOINIT="3(vtkInteractionStyle,vtkRenderingFreeType,vtkRenderingOpenGL2)"
 
-CXX_INCLUDES = -I/usr/include/eigen3 -I/usr/include/vtk-7.1 -I/usr/include/freetype2 -I"/home/ljh/project/factory/calibration/lidar_to_lidar/Refine Calibration/include" -I"/home/ljh/project/factory/calibration/lidar_to_lidar/Refine Calibration/src" -I/usr/include/pcl-1.10 -I/usr/include/ni -I/usr/include/openni2 -isystem /usr/local/include/opencv4 
+CXX_INCLUDES = -I/usr/include/eigen3 -I/usr/include/vtk-7.1 -I/usr/include/freetype2 -I"/home/ljh/project/factory/Calibration1.0/lidar_to_lidar/Refine Calibration/include" -I"/home/ljh/project/factory/Calibration1.0/lidar_to_lidar/Refine Calibration/src" -I/usr/include/pcl-1.10 -I/usr/include/ni -I/usr/include/openni2 -isystem /usr/local/include/opencv4 
 
