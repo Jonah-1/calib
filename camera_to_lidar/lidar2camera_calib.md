@@ -223,7 +223,7 @@ bash auto-calib.sh
 
 ## 4数据保存
 
-标好后把camera_to_lidar/lidar2camera/auto_calib/extrinsic.txt中的Extrinsic矩阵复制到根目录下 output/lidar2camera.json中，替换对应相机的外参矩阵
+标好后把camera_to_lidar/lidar2camera/manual_calib/data下任意一帧文件夹的top_center_lidar-to-center_camera-extrinsic.json中的data矩阵复制到根目录下 output/lidar2camera.json中，替换对应相机的外参矩阵
 
 在五个雷达到相机的外参矩阵计算好后，在output下依次运行下面的程序
 
