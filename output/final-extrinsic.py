@@ -52,9 +52,9 @@ camera2m32 = load_json('camera2m32.json')
 lidar2m32 = load_json('lidar2m32.json')
 
 # 定义键和输出路径列表
-camera_keys = ["CAM_FRONT_8M", "CAM_FRONT_3M", "CAM_LEFT_3M", "CAM_RIGHT_3M","CAM_BACK_3M"]
+camera_keys = ["CAM_FRONT_8M", "CAM_FRONT_3M", "CAM_LEFT_3M", "CAM_RIGHT_3M","CAM_BACK_3MH"]
 lidar_keys = ["LIDAR_FRONT","LIDAR_BACK"]
-output_keys = ["CAM_FRONT_8M", "CAM_FRONT_3M", "CAM_LEFT_3M", "CAM_RIGHT_3M","CAM_BACK_3M","LIDAR_FRONT", "LIDAR_BACK","LIDAR_ZHU"]
+output_keys = ["CAM_FRONT_8M", "CAM_FRONT_3M", "CAM_LEFT_3M", "CAM_RIGHT_3M","CAM_BACK_3MH","LIDAR_FRONT", "LIDAR_BACK","LIDAR_ZHU"]
 output_path = "final-extrinsic.json"
 
 # 清空输出文件
