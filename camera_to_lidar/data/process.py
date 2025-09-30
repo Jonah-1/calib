@@ -173,31 +173,31 @@ if __name__ == "__main__":
     cameras_name={
         'pinhole-front': {
             'source_dir1': f"{args.dir}/CAM_FRONT_8M",
-            'source_dir2': f"{args.dir}/LIDAR_TOP_32",
+            'source_dir2': f"{args.dir}/lidar_point_cloud_0",
             'target_dir1': "pinhole-front/images",
             'target_dir2': "pinhole-front/pointclouds"
         },
         'fisheye-front': {
             'source_dir1': f"{args.dir}/CAM_FRONT_3M",
-            'source_dir2': f"{args.dir}/LIDAR_TOP_32",
+            'source_dir2': f"{args.dir}/lidar_point_cloud_0",
             'target_dir1': "fisheye-front/images",
             'target_dir2': "fisheye-front/pointclouds"
         },
         'fisheye-left': {
             'source_dir1': f"{args.dir}/CAM_LEFT_3M",
-            'source_dir2': f"{args.dir}/LIDAR_TOP_32",
+            'source_dir2': f"{args.dir}/lidar_point_cloud_0",
             'target_dir1': "fisheye-left/images",
             'target_dir2': "fisheye-left/pointclouds"
         },
         'fisheye-right': {
             'source_dir1': f"{args.dir}/CAM_RIGHT_3M",
-            'source_dir2': f"{args.dir}/LIDAR_TOP_32",
+            'source_dir2': f"{args.dir}/lidar_point_cloud_0",
             'target_dir1': "fisheye-right/images",
             'target_dir2': "fisheye-right/pointclouds"
         },
         'pinhole-back': {
             'source_dir1': f"{args.dir}/CAM_BACK_3MH",
-            'source_dir2': f"{args.dir}/LIDAR_TOP_32",
+            'source_dir2': f"{args.dir}/lidar_point_cloud_0",
             'target_dir1': "pinhole-back/images",
             'target_dir2': "pinhole-back/pointclouds"
         }

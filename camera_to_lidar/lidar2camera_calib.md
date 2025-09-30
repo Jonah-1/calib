@@ -50,7 +50,12 @@ raw-data    #保存的名字，可更改
 
 ### 2.1 数据读取
 
-进入camera_to_lidar/data文件夹，运行程序，把下载好的数据转到到各对应名字的文件夹中（fisheye-front，fisheye-left，fisheye-right, pinhole-back, pinhole-front）
+进入camera_to_lidar/data文件夹，首先运行程序合并点云
+```
+python merge_pcd.py --path raw-data
+```
+
+然后运行程序，把下载好的数据转到到各对应名字的文件夹中（fisheye-front，fisheye-left，fisheye-right, pinhole-back, pinhole-front）
 
 ```
 python process.py --dir raw-data/ --sync --time-tolerance 0.1
