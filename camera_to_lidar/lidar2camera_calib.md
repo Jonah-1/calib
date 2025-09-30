@@ -35,14 +35,15 @@ export LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libtiff.so.5
 首先分别使用前后左右的各相机（前面有两个）同时与各自最近的前后左右激光雷达同时采集点云图片，保存到一个文件夹，文件夹目录结构为
 
 ```
-0923pcdpng    #保存的名字，可更改
-├── output_png0
-├── output_png4
-├── output_png5
-├── output_png6
-├── output_png7
-├── front
-├── back
+raw-data    #保存的名字，可更改
+├── CAM_FRONT_8M
+├── CAM_FRONT_3M
+├── CAM_LEFT_3M
+├── CAM_RIGHT_3M
+├── CAM_BACK_3M
+├── LIDAR_FRONT
+├── LIDAR_REAR
+├── LIDAR_TOP_32
 ```
 
 ## 2 数据处理
@@ -163,7 +164,7 @@ data
 运行下列程序，针对不同的相机把上面准备好的auto-calib和mannual-calib数据分别送到自动标定和手动标定文件夹
 
 ```
- python transfer-files.py --sort fisheye-left
+ python transfer-files.py --sort pinhole-front
 ```
 
 --sort 为要进行标定的相机名称

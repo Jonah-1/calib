@@ -17,6 +17,7 @@
 #include <unistd.h>
 
 #include <Eigen/Core>
+#include <fstream>
 #include <iostream>
 #include <string>
 
@@ -24,7 +25,51 @@
 #include "intrinsic_param.hpp"
 #include "projector_lidar.hpp"
 
+// JSON解析
+#include <json/json.h>
+
 using namespace std;
+
+// 3D框结构
+struct Box3D {
+  Eigen::Vector3d center;
+  Eigen::Vector3d x_dir;
+  Eigen::Vector3d y_dir;
+  Eigen::Vector3d z_dir;
+  Eigen::Vector3d size; // [length, width, height]
+  std::string name;
+  
+  // 计算8个顶点
+  std::vector<Eigen::Vector3d> getCorners() const {
+    std::vector<Eigen::Vector3d> corners;
+    double half_x = size[0] / 2.0;
+    double half_y = size[1] / 2.0;
+    double half_z = size[2] / 2.0;
+    
+    // 8个顶点的局部坐标
+    std::vector<Eigen::Vector3d> local_corners = {
+      Eigen::Vector3d(-half_x, -half_y, -half_z),
+      Eigen::Vector3d( half_x, -half_y, -half_z),
+      Eigen::Vector3d( half_x,  half_y, -half_z),
+      Eigen::Vector3d(-half_x,  half_y, -half_z),
+      Eigen::Vector3d(-half_x, -half_y,  half_z),
+      Eigen::Vector3d( half_x, -half_y,  half_z),
+      Eigen::Vector3d( half_x,  half_y,  half_z),
+      Eigen::Vector3d(-half_x,  half_y,  half_z)
+    };
+    
+    // 转换到世界坐标系
+    for (const auto& local_corner : local_corners) {
+      Eigen::Vector3d world_corner = center + 
+                                     local_corner[0] * x_dir +
+                                     local_corner[1] * y_dir +
+                                     local_corner[2] * z_dir;
+      corners.push_back(world_corner);
+    }
+    
+    return corners;
+  }
+};
 
 #define GL_GPU_MEM_INFO_CURRENT_AVAILABLE_MEM_NVX 0x9049
 #define APPLY_COLOR_TO_LIDAR_INTENSITY // to set intensity colored or not
@@ -167,6 +212,155 @@ void saveResult(const cv::Mat &calib_img, const int &frame_id) {
   cv::imwrite(img_name, calib_img);
 }
 
+// 加载3D框参数
+std::vector<Box3D> LoadBoxes(const std::string& filename) {
+  std::vector<Box3D> boxes;
+  
+  Json::Reader reader;
+  Json::Value root;
+  std::ifstream in(filename);
+  
+  if (!in.is_open()) {
+    std::cout << "无法打开文件: " << filename << std::endl;
+    return boxes;
+  }
+  
+  if (!reader.parse(in, root, false)) {
+    std::cout << "解析JSON失败: " << filename << std::endl;
+    in.close();
+    return boxes;
+  }
+  
+  for (const auto& box_name : root.getMemberNames()) {
+    Box3D box;
+    box.name = box_name;
+    
+    Json::Value box_data = root[box_name];
+    
+    // 读取中心点
+    box.center = Eigen::Vector3d(
+      box_data["center"][0].asDouble(),
+      box_data["center"][1].asDouble(),
+      box_data["center"][2].asDouble()
+    );
+    
+    // 读取方向向量
+    box.x_dir = Eigen::Vector3d(
+      box_data["x_direction"][0].asDouble(),
+      box_data["x_direction"][1].asDouble(),
+      box_data["x_direction"][2].asDouble()
+    );
+    
+    box.y_dir = Eigen::Vector3d(
+      box_data["y_direction"][0].asDouble(),
+      box_data["y_direction"][1].asDouble(),
+      box_data["y_direction"][2].asDouble()
+    );
+    
+    box.z_dir = Eigen::Vector3d(
+      box_data["z_direction"][0].asDouble(),
+      box_data["z_direction"][1].asDouble(),
+      box_data["z_direction"][2].asDouble()
+    );
+    
+    // 读取尺寸
+    box.size = Eigen::Vector3d(
+      box_data["size"][0].asDouble(),
+      box_data["size"][1].asDouble(),
+      box_data["size"][2].asDouble()
+    );
+    
+    boxes.push_back(box);
+  }
+  
+  in.close();
+  std::cout << "加载了 " << boxes.size() << " 个3D框" << std::endl;
+  return boxes;
+}
+
+// 将3D点投射到2D图像
+cv::Point2f project3DTo2D(const Eigen::Vector3d& point_3d, 
+                          const Eigen::Matrix3d& K,
+                          const Eigen::Matrix4d& extrinsic) {
+  // 转换到相机坐标系
+  Eigen::Vector4d point_homo(point_3d[0], point_3d[1], point_3d[2], 1.0);
+  Eigen::Vector4d point_cam = extrinsic * point_homo;
+  
+  // 投射到图像平面
+  Eigen::Vector3d point_2d_homo = K * point_cam.head<3>();
+  
+  if (point_2d_homo[2] > 0) {
+    return cv::Point2f(point_2d_homo[0] / point_2d_homo[2], 
+                       point_2d_homo[1] / point_2d_homo[2]);
+  }
+  
+  return cv::Point2f(-1, -1);
+}
+
+// 绘制3D框到图像上
+void drawBoxes3D(cv::Mat& img, 
+                 const std::vector<Box3D>& boxes,
+                 const Eigen::Matrix3d& K,
+                 const Eigen::Matrix4d& extrinsic) {
+  // 不同颜色用于不同的框
+  std::vector<cv::Scalar> colors = {
+    cv::Scalar(0, 255, 0),    // 绿色
+    cv::Scalar(255, 0, 0),    // 蓝色
+    cv::Scalar(0, 255, 255),  // 黄色
+    cv::Scalar(255, 0, 255),  // 品红
+    cv::Scalar(255, 255, 0),  // 青色
+    cv::Scalar(128, 0, 128),  // 紫色
+    cv::Scalar(255, 128, 0),  // 橙色
+    cv::Scalar(0, 128, 255)   // 天蓝色
+  };
+  
+  int color_idx = 0;
+  for (const auto& box : boxes) {
+    cv::Scalar color = colors[color_idx % colors.size()];
+    color_idx++;
+    
+    // 获取8个顶点
+    std::vector<Eigen::Vector3d> corners = box.getCorners();
+    
+    // 投射到2D
+    std::vector<cv::Point2f> points_2d;
+    bool all_valid = true;
+    for (const auto& corner : corners) {
+      cv::Point2f pt_2d = project3DTo2D(corner, K, extrinsic);
+      
+      // 检查点是否在图像范围内或深度为正
+      if (pt_2d.x < 0 && pt_2d.y < 0) {
+        all_valid = false;
+        break;
+      }
+      points_2d.push_back(pt_2d);
+    }
+    
+    if (!all_valid || points_2d.size() != 8) {
+      continue;
+    }
+    
+    // 绘制底面（顶点0-3）
+    for (int i = 0; i < 4; i++) {
+      cv::line(img, points_2d[i], points_2d[(i + 1) % 4], color, 2);
+    }
+    
+    // 绘制顶面（顶点4-7）
+    for (int i = 4; i < 8; i++) {
+      cv::line(img, points_2d[i], points_2d[4 + (i + 1) % 4], color, 2);
+    }
+    
+    // 绘制垂直边（连接底面和顶面）
+    for (int i = 0; i < 4; i++) {
+      cv::line(img, points_2d[i], points_2d[i + 4], color, 2);
+    }
+    
+    // 在框上显示名称
+    cv::putText(img, box.name, points_2d[0], cv::FONT_HERSHEY_SIMPLEX, 
+                0.8, color, 2);
+  }
+}
+
 bool ManualCalibration(int key_input) {
   char table[] = {'q', 'a', 'w', 's', 'e', 'd', 'r', 'f', 't', 'g', 'y', 'h'};
   bool real_hit = false;
@@ -197,13 +391,14 @@ bool ManualCalibration(int key_input) {
 }
 
 int main(int argc, char **argv) {
-  if (argc != 5) {
+  if (argc != 5 && argc != 6) {
     cout << "Usage: ./run_lidar2camera <image_path> <pcd_path> "
-            "<intrinsic_json> <extrinsic_json>"
+            "<intrinsic_json> <extrinsic_json> [box_json]"
             "\nexample:\n\t"
             "./bin/run_lidar2camera data/0.png data/0.pcd "
             "data/center_camera-intrinsic.json "
-            "data/top_center_lidar-to-center_camera-extrinsic.json"
+            "data/top_center_lidar-to-center_camera-extrinsic.json "
+            "[data/box_parameters.json]"
          << endl;
     return 0;
   }
@@ -212,6 +407,22 @@ int main(int argc, char **argv) {
   string lidar_path = argv[2];
   string intrinsic_json = argv[3];
   string extrinsic_json = argv[4];
+  
+  // 加载3D框（如果提供了box_json参数）
+  std::vector<Box3D> boxes;
+  string box_json = "";
+  if (argc == 6) {
+    box_json = argv[5];
+    boxes = LoadBoxes(box_json);
+  } else {
+    // 尝试自动在相同目录下查找box_parameters.json
+    boost::filesystem::path img_path(camera_path);
+    boost::filesystem::path box_path = img_path.parent_path() / "box_parameters.json";
+    if (boost::filesystem::exists(box_path)) {
+      box_json = box_path.string();
+      boxes = LoadBoxes(box_json);
+    }
+  }
   cv::Mat img = cv::imread(camera_path);
   std::cout << intrinsic_json << std::endl;
   pcl::PointCloud<pcl::PointXYZI>::Ptr cloud(
@@ -283,6 +494,7 @@ int main(int argc, char **argv) {
   pangolin::Var<bool> displayMode("cp.Intensity Color", false,
                                   true);                            // logscale
   pangolin::Var<bool> filterMode("cp.Overlap Filter", false, true); // logscale
+  pangolin::Var<bool> showBoxes("cp.Show 3D Boxes", !boxes.empty(), true); // 显示3D框
   pangolin::Var<double> degreeStep("cp.deg step", 0.3, 0, 1);       // logscale
   pangolin::Var<double> tStep("cp.t step(cm)", 6, 0, 15);
   pangolin::Var<double> fxfyScale("cp.fxfy scale", 1.005, 1, 1.1);
@@ -325,7 +537,14 @@ int main(int argc, char **argv) {
 
   cv::Mat current_frame = projector.ProjectToRawImage(
       img, intrinsic_matrix_, dist, calibration_matrix_);
+  
+  // 绘制3D框
+  if (!boxes.empty()) {
+    drawBoxes3D(current_frame, boxes, intrinsic_matrix_, calibration_matrix_);
+  }
+  
   int frame_num = 0;
+  bool show_boxes_mode = !boxes.empty();
 
   std::cout << "\n=>START\n";
   while (!pangolin::ShouldQuit()) {
@@ -335,6 +554,9 @@ int main(int argc, char **argv) {
         projector.setDisplayMode(true);
         current_frame = projector.ProjectToRawImage(img, intrinsic_matrix_,
                                                     dist, calibration_matrix_);
+        if (showBoxes && !boxes.empty()) {
+          drawBoxes3D(current_frame, boxes, intrinsic_matrix_, calibration_matrix_);
+        }
         display_mode_ = true;
       }
     } else {
@@ -342,6 +564,9 @@ int main(int argc, char **argv) {
         projector.setDisplayMode(false);
         current_frame = projector.ProjectToRawImage(img, intrinsic_matrix_,
                                                     dist, calibration_matrix_);
+        if (showBoxes && !boxes.empty()) {
+          drawBoxes3D(current_frame, boxes, intrinsic_matrix_, calibration_matrix_);
+        }
         display_mode_ = false;
       }
     }
@@ -351,6 +576,9 @@ int main(int argc, char **argv) {
         projector.setFilterMode(true);
         current_frame = projector.ProjectToRawImage(img, intrinsic_matrix_,
                                                     dist, calibration_matrix_);
+        if (showBoxes && !boxes.empty()) {
+          drawBoxes3D(current_frame, boxes, intrinsic_matrix_, calibration_matrix_);
+        }
         filter_mode_ = true;
       }
     } else {
@@ -358,7 +586,26 @@ int main(int argc, char **argv) {
         projector.setFilterMode(false);
         current_frame = projector.ProjectToRawImage(img, intrinsic_matrix_,
                                                     dist, calibration_matrix_);
+        if (showBoxes && !boxes.empty()) {
+          drawBoxes3D(current_frame, boxes, intrinsic_matrix_, calibration_matrix_);
+        }
         filter_mode_ = false;
+      }
+    }
+    
+    // 处理3D框显示开关
+    if (showBoxes) {
+      if (show_boxes_mode == false && !boxes.empty()) {
+        current_frame = projector.ProjectToRawImage(img, intrinsic_matrix_,
+                                                    dist, calibration_matrix_);
+        drawBoxes3D(current_frame, boxes, intrinsic_matrix_, calibration_matrix_);
+        show_boxes_mode = true;
+      }
+    } else {
+      if (show_boxes_mode == true) {
+        current_frame = projector.ProjectToRawImage(img, intrinsic_matrix_,
+                                                    dist, calibration_matrix_);
+        show_boxes_mode = false;
       }
     }
 
@@ -384,6 +631,9 @@ int main(int argc, char **argv) {
       projector.setPointSize(ptsize);
       current_frame = projector.ProjectToRawImage(img, intrinsic_matrix_, dist,
                                                   calibration_matrix_);
+      if (showBoxes && !boxes.empty()) {
+        drawBoxes3D(current_frame, boxes, intrinsic_matrix_, calibration_matrix_);
+      }
       std::cout << "point size changed to " << ptsize << std::endl;
     }
     for (int i = 0; i < 12; i++) {
@@ -392,6 +642,9 @@ int main(int argc, char **argv) {
         std::cout << "Changed!\n";
         current_frame = projector.ProjectToRawImage(img, intrinsic_matrix_,
                                                     dist, calibration_matrix_);
+        if (showBoxes && !boxes.empty()) {
+          drawBoxes3D(current_frame, boxes, intrinsic_matrix_, calibration_matrix_);
+        }
       }
     }
 
@@ -399,24 +652,36 @@ int main(int argc, char **argv) {
       intrinsic_matrix_(0, 0) *= cali_scale_fxfy_;
       current_frame = projector.ProjectToRawImage(img, intrinsic_matrix_, dist,
                                                   calibration_matrix_);
+      if (showBoxes && !boxes.empty()) {
+        drawBoxes3D(current_frame, boxes, intrinsic_matrix_, calibration_matrix_);
+      }
       std::cout << "fx changed to " << intrinsic_matrix_(0, 0) << std::endl;
     }
     if (pangolin::Pushed(minusFx)) {
       intrinsic_matrix_(0, 0) /= cali_scale_fxfy_;
       current_frame = projector.ProjectToRawImage(img, intrinsic_matrix_, dist,
                                                   calibration_matrix_);
+      if (showBoxes && !boxes.empty()) {
+        drawBoxes3D(current_frame, boxes, intrinsic_matrix_, calibration_matrix_);
+      }
       std::cout << "fx changed to " << intrinsic_matrix_(0, 0) << std::endl;
     }
     if (pangolin::Pushed(addFy)) {
       intrinsic_matrix_(1, 1) *= cali_scale_fxfy_;
       current_frame = projector.ProjectToRawImage(img, intrinsic_matrix_, dist,
                                                   calibration_matrix_);
+      if (showBoxes && !boxes.empty()) {
+        drawBoxes3D(current_frame, boxes, intrinsic_matrix_, calibration_matrix_);
+      }
       std::cout << "fy changed to " << intrinsic_matrix_(1, 1) << std::endl;
     }
     if (pangolin::Pushed(minusFy)) {
       intrinsic_matrix_(1, 1) /= cali_scale_fxfy_;
       current_frame = projector.ProjectToRawImage(img, intrinsic_matrix_, dist,
                                                   calibration_matrix_);
+      if (showBoxes && !boxes.empty()) {
+        drawBoxes3D(current_frame, boxes, intrinsic_matrix_, calibration_matrix_);
+      }
       std::cout << "fy changed to " << intrinsic_matrix_(1, 1) << std::endl;
     }
 
@@ -425,6 +690,9 @@ int main(int argc, char **argv) {
       intrinsic_matrix_ = orign_intrinsic_matrix_;
       current_frame = projector.ProjectToRawImage(img, intrinsic_matrix_, dist,
                                                   calibration_matrix_);
+      if (showBoxes && !boxes.empty()) {
+        drawBoxes3D(current_frame, boxes, intrinsic_matrix_, calibration_matrix_);
+      }
       std::cout << "Reset!\n";
     }
     if (pangolin::Pushed(saveImg)) {
@@ -443,6 +711,9 @@ int main(int argc, char **argv) {
       }
       current_frame = projector.ProjectToRawImage(img, intrinsic_matrix_, dist,
                                                   calibration_matrix_);
+      if (showBoxes && !boxes.empty()) {
+        drawBoxes3D(current_frame, boxes, intrinsic_matrix_, calibration_matrix_);
+      }
     }
 
     imageArray = current_frame.data;
