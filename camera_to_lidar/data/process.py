@@ -159,9 +159,7 @@ def transfer(source_dir, target_dir):
 def parse_arguments():
     """解析命令行参数"""
     parser = argparse.ArgumentParser(description='相机图像去畸变处理工具')
-    parser.add_argument('--sorts', choices=['pinhole-back', 'pinhole-front', 'fisheye-front', 'fisheye-left', 'fisheye-right'], default='fisheye-front',
-                        help='相机类型选择')
-    parser.add_argument('--dir', default='./0923pcdpnp',
+    parser.add_argument('--dir', default='./raw-data',
                         help='数据源目录路径')
     parser.add_argument('--sync', action='store_true',
                         help='是否启用时间戳同步模式')
@@ -173,74 +171,88 @@ if __name__ == "__main__":
     # 解析命令行参数
     args = parse_arguments()
     cameras_name={
+        'pinhole-front': {
+            'source_dir1': f"{args.dir}/CAM_FRONT_8M",
+            'source_dir2': f"{args.dir}/LIDAR_TOP_32",
+            'target_dir1': "pinhole-front/images",
+            'target_dir2': "pinhole-front/pointclouds"
+        },
         'fisheye-front': {
-            'source_dir1': f"{args.dir}/output_png4",
-            'source_dir2': f"{args.dir}/front",
+            'source_dir1': f"{args.dir}/CAM_FRONT_3M",
+            'source_dir2': f"{args.dir}/LIDAR_TOP_32",
             'target_dir1': "fisheye-front/images",
             'target_dir2': "fisheye-front/pointclouds"
         },
         'fisheye-left': {
-            'source_dir1': f"{args.dir}/output_png5",
-            'source_dir2': f"{args.dir}/back",
+            'source_dir1': f"{args.dir}/CAM_LEFT_3M",
+            'source_dir2': f"{args.dir}/LIDAR_TOP_32",
             'target_dir1': "fisheye-left/images",
             'target_dir2': "fisheye-left/pointclouds"
         },
         'fisheye-right': {
-            'source_dir1': f"{args.dir}/output_png7",
-            'source_dir2': f"{args.dir}/front",
+            'source_dir1': f"{args.dir}/CAM_RIGHT_3M",
+            'source_dir2': f"{args.dir}/LIDAR_TOP_32",
             'target_dir1': "fisheye-right/images",
             'target_dir2': "fisheye-right/pointclouds"
         },
         'pinhole-back': {
-            'source_dir1': f"{args.dir}/output_png6",
-            'source_dir2': f"{args.dir}/back",
+            'source_dir1': f"{args.dir}/CAM_BACK_3MH",
+            'source_dir2': f"{args.dir}/LIDAR_TOP_32",
             'target_dir1': "pinhole-back/images",
             'target_dir2': "pinhole-back/pointclouds"
-        },
-        'pinhole-front': {
-            'source_dir1': f"{args.dir}/output_png0",
-            'source_dir2': f"{args.dir}/front",
-            'target_dir1': "pinhole-front/images",
-            'target_dir2': "pinhole-front/pointclouds"
         }
 
     }
-    camera = args.sorts
-    source_dir1 = cameras_name[camera]['source_dir1']  # PNG图像目录
-    source_dir2 = cameras_name[camera]['source_dir2']  # PCD点云目录
-    target_dir1 = cameras_name[camera]['target_dir1']
-    target_dir2 = cameras_name[camera]['target_dir2']
     
+    # 循环处理所有相机类型
+    print(f"=== 开始处理所有相机类型 ===")
+    print(f"数据源目录: {args.dir}")
     if args.sync:
         print(f"启用时间戳同步模式，时间容差: {args.time_tolerance}秒")
-        print(f"处理相机类型: {camera}")
-        print(f"PNG源目录: {source_dir1}")
-        print(f"PCD源目录: {source_dir2}")
-        
-        # 加载PNG和PCD文件及其时间戳
-        png_files = load_files_with_timestamps(source_dir1, '.png')
-        pcd_files = load_files_with_timestamps(source_dir2, '.pcd')
-        
-        print(f"找到 {len(png_files)} 个PNG文件和 {len(pcd_files)} 个PCD文件")
-        
-        if len(png_files) == 0 or len(pcd_files) == 0:
-            print("警告: 没有找到足够的文件进行同步")
-            exit(1)
-        
-        # 同步文件
-        synchronized_pairs = sync_files_by_timestamp(png_files, pcd_files, args.time_tolerance)
-        print(f"成功同步 {len(synchronized_pairs)} 个文件对")
-        
-        if len(synchronized_pairs) == 0:
-            print("警告: 没有找到匹配的文件对")
-            exit(1)
-        
-        # 传输同步的文件
-        transfer_synchronized_files(synchronized_pairs, target_dir1, target_dir2)
-        
     else:
         print("使用普通复制模式")
-        transfer(source_dir1, target_dir1)
-        transfer(source_dir2, target_dir2)
+    print("=" * 50)
     
-    print(f"处理完成: {camera}")
+    for camera in cameras_name.keys():
+        print(f"\n{'='*50}")
+        print(f"正在处理相机类型: {camera}")
+        print(f"{'='*50}")
+        
+        source_dir1 = cameras_name[camera]['source_dir1']  # PNG图像目录
+        source_dir2 = cameras_name[camera]['source_dir2']  # PCD点云目录
+        target_dir1 = cameras_name[camera]['target_dir1']
+        target_dir2 = cameras_name[camera]['target_dir2']
+        
+        if args.sync:
+            print(f"PNG源目录: {source_dir1}")
+            print(f"PCD源目录: {source_dir2}")
+            
+            # 加载PNG和PCD文件及其时间戳
+            png_files = load_files_with_timestamps(source_dir1, '.png')
+            pcd_files = load_files_with_timestamps(source_dir2, '.pcd')
+            
+            print(f"找到 {len(png_files)} 个PNG文件和 {len(pcd_files)} 个PCD文件")
+            
+            if len(png_files) == 0 or len(pcd_files) == 0:
+                print(f"警告: {camera} 没有找到足够的文件进行同步，跳过")
+                continue
+            
+            # 同步文件
+            synchronized_pairs = sync_files_by_timestamp(png_files, pcd_files, args.time_tolerance)
+            print(f"成功同步 {len(synchronized_pairs)} 个文件对")
+            
+            if len(synchronized_pairs) == 0:
+                print(f"警告: {camera} 没有找到匹配的文件对，跳过")
+                continue
+            
+            # 传输同步的文件
+            transfer_synchronized_files(synchronized_pairs, target_dir1, target_dir2)
+            
+        else:
+            transfer(source_dir1, target_dir1)
+            transfer(source_dir2, target_dir2)
+        
+        print(f"✓ {camera} 处理完成")
+    
+    print(f"\n{'='*50}")
+    print("=== 所有相机类型处理完成 ===")
