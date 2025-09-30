@@ -52,7 +52,7 @@ export LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libtiff.so.5
 进入camera_to_lidar/data文件夹，运行程序，把下载好的数据转到到各对应名字的文件夹中（fisheye-front，fisheye-left，fisheye-right, pinhole-back, pinhole-front）
 
 ```
-python process.py --dir 0923pcdpng/ --sync --time-tolerance 0.1
+python process.py --dir raw-data/ --sync --time-tolerance 0.1
 ```
 
 通过dir指定下载好的数据文件夹，--sync 同步pcd和png时间戳，--time-tolerance 同步最小容忍时间
