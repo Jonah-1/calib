@@ -68,25 +68,26 @@ python undistort.py --mode select
 select模式下可以在代码里选择特征明显的帧来标定，改为random的话则随机选2张
 
 ```
+
 if __name__ == "__main__":
     # 解析命令行参数
     args = parse_arguments()
 
     camera_frame_selection = {
-        'pinhole-back': {
-            'frames': [101, 107],
-        },
         'pinhole-front': {
-            'frames': [137, 140],
+            'frames': [1, 2],
         },
         'fisheye-front': {
-            'frames': [173, 180],
+            'frames': [1, 2],
         },
         'fisheye-left': {
-            'frames': [97,107],
+            'frames': [2,3],
         },
         'fisheye-right': {
-            'frames': [53, 62],
+            'frames': [1,4],
+        },
+        'pinhole-back': {
+            'frames': [0, 2],
         }
     }
 ```

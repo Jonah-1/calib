@@ -17,27 +17,33 @@ def update_camera_config(camera_config_path, param_files, input_dirs):
     # 遍历每个相机配置
     for i, (param_file, input_dir) in enumerate(zip(param_files, input_dirs)):
         # 获取内参
-        if "pinhole-front" in input_dir: # Special case for pinhole-front
-            fx = 1910.3417311410
-            fy = 1910.3058674355
-            cx = 1917.7001038394
-            cy = 1081.4421265044
-            # 计算裁剪后的新内参
-            width = 3840
-            height = 2160
-            crop_width = width - 1920
-            crop_height = height - 1536
-            left = max(0, int(crop_width/2))
-            top = max(0, int(crop_height/2))
-            cx = cx - left
-            cy = cy - top
-        else:
-            internal_params = read_camera_parameters(param_file)
-            fx = internal_params.get("FX")
-            fy = internal_params.get("FY")
-            cx = internal_params.get("CX")
-            cy = internal_params.get("CY")
+        # if "pinhole-front" in input_dir: # Special case for pinhole-front
+        #     fx = 1910.3417311410
+        #     fy = 1910.3058674355
+        #     cx = 1917.7001038394
+        #     cy = 1081.4421265044
+        #     # 计算裁剪后的新内参
+        #     width = 3840
+        #     height = 2160
+        #     crop_width = width - 1920
+        #     crop_height = height - 1536
+        #     left = max(0, int(crop_width/2))
+        #     top = max(0, int(crop_height/2))
+        #     cx = cx - left
+        #     cy = cy - top
+        # else:
+        internal_params = read_camera_parameters(param_file)
+        fx = internal_params.get("FX")
+        fy = internal_params.get("FY")
+        cx = internal_params.get("CX")
+        cy = internal_params.get("CY")
 
+        if "pinhole-front" in input_dir: 
+            width=3840
+            height=2160
+        else:
+            width=1920
+            height=1536
         # 构建单个相机配置 (移除外参)
         camera_entry = {
             "camera_internal": {
@@ -46,8 +52,8 @@ def update_camera_config(camera_config_path, param_files, input_dirs):
                 "cx": cx,
                 "cy": cy
             },
-            "width": 1920,
-            "height": 1536,
+            "width": width,
+            "height": height,
             "rowMajor": True
         }
 
@@ -301,9 +307,9 @@ def undistort_pinhole_image(image_path, params, input_dir):
     # 去畸变
     undistorted_img = cv2.undistort(img, camera_matrix, dist_coeffs)
 
-    if input_dir==f"pinhole-front/images":
-          undistorted_img=crop_image(undistorted_img,params['CX'],params['CY'])
-          camera_matrix, new_camera_matrix=calculate_new_camera_matrix(params, input_dir)
+    # if input_dir==f"pinhole-front/images":
+    #       undistorted_img=crop_image(undistorted_img,params['CX'],params['CY'])
+    #       camera_matrix, new_camera_matrix=calculate_new_camera_matrix(params, input_dir)
         #   print("\n原始相机矩阵:")
         #   print(camera_matrix)
         #   print("\n新的相机矩阵:")
@@ -390,20 +396,20 @@ if __name__ == "__main__":
     args = parse_arguments()
 
     camera_frame_selection = {
-        'pinhole-back': {
-            'frames': [101, 107],
-        },
         'pinhole-front': {
-            'frames': [137, 140],
+            'frames': [1, 2],
         },
         'fisheye-front': {
-            'frames': [173, 180],
+            'frames': [1, 2],
         },
         'fisheye-left': {
-            'frames': [97,107],
+            'frames': [2,3],
         },
         'fisheye-right': {
-            'frames': [53, 62],
+            'frames': [1,4],
+        },
+        'pinhole-back': {
+            'frames': [0, 2],
         }
     }
 
