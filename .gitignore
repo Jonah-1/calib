@@ -18,6 +18,11 @@ camera_to_lidar/data/pinhole-front/*
 camera_to_lidar/data/pinhole-back/*
 !camera_to_lidar/data/pinhole-back/.gitkeep
 camera_to_lidar/data/raw-data/*
+camera_to_lidar/lidar2camera/manual_calib/tools/fisheye-front/*
+camera_to_lidar/lidar2camera/manual_calib/tools/fisheye-left/*
+camera_to_lidar/lidar2camera/manual_calib/tools/fisheye-right/*
+camera_to_lidar/lidar2camera/manual_calib/tools/pinhole-front/*
+camera_to_lidar/lidar2camera/manual_calib/tools/pinhole-back/*
 camera_to_lidar/data/masks/*
 !camera_to_lidar/data/masks/.gitkeep
 camera_to_lidar/data/segment-anything/sam_vit_l_0b3195.pth

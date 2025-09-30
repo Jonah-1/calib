@@ -319,35 +319,35 @@ void drawBoxes3D(cv::Mat& img,
     cv::Scalar color = colors[color_idx % colors.size()];
     color_idx++;
     
+    std::cout << "\n=== 处理框: " << box.name << " ===" << std::endl;
+    std::cout << "框中心(雷达坐标): [" << box.center[0] << ", " << box.center[1] << ", " << box.center[2] << "]" << std::endl;
+    
     // 获取8个顶点
     std::vector<Eigen::Vector3d> corners = box.getCorners();
     
-    // 投射到2D
+    // 投射到2D - 不做任何有效性检查，直接投影所有顶点
     std::vector<cv::Point2f> points_2d;
-    bool all_valid = true;
-    for (const auto& corner : corners) {
+    for (size_t i = 0; i < corners.size(); i++) {
+      const auto& corner = corners[i];
       cv::Point2f pt_2d = project3DTo2D(corner, K, extrinsic);
-      
-      // 检查点是否在图像范围内或深度为正
-      if (pt_2d.x < 0 && pt_2d.y < 0) {
-        all_valid = false;
-        break;
-      }
       points_2d.push_back(pt_2d);
     }
     
-    if (!all_valid || points_2d.size() != 8) {
-      continue;
+    if (points_2d.size() != 8) {
+      continue;  // 顶点数量不对，跳过
     }
     
+    // 直接绘制，不检查有效性
     // 绘制底面（顶点0-3）
     for (int i = 0; i < 4; i++) {
-      cv::line(img, points_2d[i], points_2d[(i + 1) % 4], color, 2);
+      int next = (i + 1) % 4;
+      cv::line(img, points_2d[i], points_2d[next], color, 2);
     }
     
     // 绘制顶面（顶点4-7）
     for (int i = 4; i < 8; i++) {
-      cv::line(img, points_2d[i], points_2d[4 + (i + 1) % 4], color, 2);
+      int next = 4 + (i + 1) % 4;
+      cv::line(img, points_2d[i], points_2d[next], color, 2);
     }
     
     // 绘制垂直边（连接底面和顶面）
