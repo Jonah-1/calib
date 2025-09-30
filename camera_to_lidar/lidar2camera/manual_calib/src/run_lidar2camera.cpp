@@ -302,22 +302,10 @@ void drawBoxes3D(cv::Mat& img,
                  const std::vector<Box3D>& boxes,
                  const Eigen::Matrix3d& K,
                  const Eigen::Matrix4d& extrinsic) {
-  // 不同颜色用于不同的框
-  std::vector<cv::Scalar> colors = {
-    cv::Scalar(0, 255, 0),    // 绿色
-    cv::Scalar(255, 0, 0),    // 蓝色
-    cv::Scalar(0, 255, 255),  // 黄色
-    cv::Scalar(255, 0, 255),  // 品红
-    cv::Scalar(255, 255, 0),  // 青色
-    cv::Scalar(128, 0, 128),  // 紫色
-    cv::Scalar(255, 128, 0),  // 橙色
-    cv::Scalar(0, 128, 255)   // 天蓝色
-  };
+  // 统一使用红色
+  cv::Scalar color = cv::Scalar(0, 0, 255);  // 红色 (BGR格式)
   
-  int color_idx = 0;
   for (const auto& box : boxes) {
-    cv::Scalar color = colors[color_idx % colors.size()];
-    color_idx++;
     
     std::cout << "\n=== 处理框: " << box.name << " ===" << std::endl;
     std::cout << "框中心(雷达坐标): [" << box.center[0] << ", " << box.center[1] << ", " << box.center[2] << "]" << std::endl;
