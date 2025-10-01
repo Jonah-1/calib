@@ -212,9 +212,12 @@ void saveResult(const cv::Mat &calib_img, const int &frame_id) {
   cv::imwrite(img_name, calib_img);
 }
 
-// 加载3D框参数
-std::vector<Box3D> LoadBoxes(const std::string& filename) {
+// 加载3D框参数 - 从boxs文件夹的JSON文件读取
+std::vector<Box3D> LoadBoxes(const std::string& frame_id) {
   std::vector<Box3D> boxes;
+  
+  // 构建JSON文件路径
+  std::string filename = "data/boxs/" + frame_id + ".json";
   
   Json::Reader reader;
   Json::Value root;
@@ -231,50 +234,70 @@ std::vector<Box3D> LoadBoxes(const std::string& filename) {
     return boxes;
   }
   
-  for (const auto& box_name : root.getMemberNames()) {
-    Box3D box;
-    box.name = box_name;
-    
-    Json::Value box_data = root[box_name];
-    
-    // 读取中心点
-    box.center = Eigen::Vector3d(
-      box_data["center"][0].asDouble(),
-      box_data["center"][1].asDouble(),
-      box_data["center"][2].asDouble()
-    );
-    
-    // 读取方向向量
-    box.x_dir = Eigen::Vector3d(
-      box_data["x_direction"][0].asDouble(),
-      box_data["x_direction"][1].asDouble(),
-      box_data["x_direction"][2].asDouble()
-    );
-    
-    box.y_dir = Eigen::Vector3d(
-      box_data["y_direction"][0].asDouble(),
-      box_data["y_direction"][1].asDouble(),
-      box_data["y_direction"][2].asDouble()
-    );
-    
-    box.z_dir = Eigen::Vector3d(
-      box_data["z_direction"][0].asDouble(),
-      box_data["z_direction"][1].asDouble(),
-      box_data["z_direction"][2].asDouble()
-    );
-    
-    // 读取尺寸
-    box.size = Eigen::Vector3d(
-      box_data["size"][0].asDouble(),
-      box_data["size"][1].asDouble(),
-      box_data["size"][2].asDouble()
-    );
-    
-    boxes.push_back(box);
+  // 解析JSON数组结构
+  if (root.isArray() && root.size() > 0) {
+    // 遍历所有数据源
+    for (const auto& data_source : root) {
+      if (data_source.isMember("objects") && data_source["objects"].isArray()) {
+        const Json::Value& objects = data_source["objects"];
+        
+        // 遍历每个对象
+        for (const auto& obj : objects) {
+          if (obj.isMember("contour") && obj["contour"].isMember("size3D") && 
+              obj["contour"].isMember("center3D") && obj["contour"].isMember("rotation3D")) {
+            
+            Box3D box;
+            
+            // 获取对象ID和名称
+            if (obj.isMember("trackName")) {
+              box.name = obj["trackName"].asString();
+            } else if (obj.isMember("id")) {
+              box.name = obj["id"].asString();
+            } else {
+              box.name = "unknown";
+            }
+            
+            const Json::Value& contour = obj["contour"];
+            
+            // 读取中心点
+            const Json::Value& center = contour["center3D"];
+            box.center = Eigen::Vector3d(
+              center["x"].asDouble(),
+              center["y"].asDouble(),
+              center["z"].asDouble()
+            );
+            
+            // 读取尺寸
+            const Json::Value& size = contour["size3D"];
+            box.size = Eigen::Vector3d(
+              size["x"].asDouble(),
+              size["y"].asDouble(),
+              size["z"].asDouble()
+            );
+            
+            // 读取旋转角度（Z轴旋转）
+            const Json::Value& rotation = contour["rotation3D"];
+            double yaw = rotation["z"].asDouble();
+            
+            // 根据Z轴旋转角度计算方向向量
+            box.x_dir = Eigen::Vector3d(cos(yaw), sin(yaw), 0);
+            box.y_dir = Eigen::Vector3d(-sin(yaw), cos(yaw), 0);
+            box.z_dir = Eigen::Vector3d(0, 0, 1);
+            
+            boxes.push_back(box);
+            
+            std::cout << "加载框: " << box.name 
+                      << " 中心: [" << box.center[0] << ", " << box.center[1] << ", " << box.center[2] << "]"
+                      << " 尺寸: [" << box.size[0] << ", " << box.size[1] << ", " << box.size[2] << "]"
+                      << " 旋转: " << yaw << " rad" << std::endl;
+          }
+        }
+      }
+    }
   }
   
   in.close();
-  std::cout << "加载了 " << boxes.size() << " 个3D框" << std::endl;
+  std::cout << "总共加载了 " << boxes.size() << " 个3D框" << std::endl;
   return boxes;
 }
 
@@ -297,15 +320,43 @@ cv::Point2f project3DTo2D(const Eigen::Vector3d& point_3d,
   return cv::Point2f(-1, -1);
 }
 
+// 检查点是否在图像范围内
+bool isPointInImage(const cv::Point2f& pt, const cv::Mat& img) {
+  return pt.x >= 0 && pt.x < img.cols && pt.y >= 0 && pt.y < img.rows;
+}
+
+// 检查投影点是否有效（在相机前方）
+bool isPointValid(const Eigen::Vector3d& point_3d, 
+                  const Eigen::Matrix4d& extrinsic) {
+  // 转换到相机坐标系
+  Eigen::Vector4d point_homo(point_3d[0], point_3d[1], point_3d[2], 1.0);
+  Eigen::Vector4d point_cam = extrinsic * point_homo;
+  
+  // 检查Z坐标是否为正（在相机前方）
+  return point_cam[2] > 0;
+}
+
 // 绘制3D框到图像上
 void drawBoxes3D(cv::Mat& img, 
                  const std::vector<Box3D>& boxes,
                  const Eigen::Matrix3d& K,
                  const Eigen::Matrix4d& extrinsic) {
-  // 统一使用红色
-  cv::Scalar color = cv::Scalar(0, 0, 255);  // 红色 (BGR格式)
+  // 定义不同颜色
+  std::vector<cv::Scalar> colors = {
+    cv::Scalar(0, 0, 255),    // 红色
+    cv::Scalar(0, 255, 0),    // 绿色
+    cv::Scalar(255, 0, 0),    // 蓝色
+    cv::Scalar(0, 255, 255),  // 黄色
+    cv::Scalar(255, 0, 255),  // 紫色
+    cv::Scalar(255, 255, 0)   // 青色
+  };
   
-  for (const auto& box : boxes) {
+  int valid_box_count = 0;
+  int total_box_count = boxes.size();
+  
+  for (size_t box_idx = 0; box_idx < boxes.size(); box_idx++) {
+    const auto& box = boxes[box_idx];
+    cv::Scalar color = colors[box_idx % colors.size()];
     
     std::cout << "\n=== 处理框: " << box.name << " ===" << std::endl;
     std::cout << "框中心(雷达坐标): [" << box.center[0] << ", " << box.center[1] << ", " << box.center[2] << "]" << std::endl;
@@ -313,40 +364,79 @@ void drawBoxes3D(cv::Mat& img,
     // 获取8个顶点
     std::vector<Eigen::Vector3d> corners = box.getCorners();
     
-    // 投射到2D - 不做任何有效性检查，直接投影所有顶点
+    // 投射到2D并检查有效性
     std::vector<cv::Point2f> points_2d;
+    std::vector<bool> point_valid;
+    int valid_points = 0;
+    
     for (size_t i = 0; i < corners.size(); i++) {
       const auto& corner = corners[i];
-      cv::Point2f pt_2d = project3DTo2D(corner, K, extrinsic);
-      points_2d.push_back(pt_2d);
+      
+      // 检查点是否在相机前方
+      bool is_valid = isPointValid(corner, extrinsic);
+      point_valid.push_back(is_valid);
+      
+      if (is_valid) {
+        cv::Point2f pt_2d = project3DTo2D(corner, K, extrinsic);
+        points_2d.push_back(pt_2d);
+        
+        // 检查是否在图像范围内
+        if (isPointInImage(pt_2d, img)) {
+          valid_points++;
+        }
+      } else {
+        points_2d.push_back(cv::Point2f(-1, -1));  // 无效点标记
+      }
     }
     
-    if (points_2d.size() != 8) {
-      continue;  // 顶点数量不对，跳过
+    std::cout << "有效投影点数量: " << valid_points << "/8" << std::endl;
+    
+    // 如果有效点太少，跳过这个框
+    if (valid_points < 4) {
+      std::cout << "跳过框 " << box.name << " - 有效投影点太少" << std::endl;
+      continue;
     }
     
-    // 直接绘制，不检查有效性
+    valid_box_count++;
+    
+    // 绘制3D框
     // 绘制底面（顶点0-3）
     for (int i = 0; i < 4; i++) {
       int next = (i + 1) % 4;
-      cv::line(img, points_2d[i], points_2d[next], color, 2);
+      if (point_valid[i] && point_valid[next] && 
+          isPointInImage(points_2d[i], img) && isPointInImage(points_2d[next], img)) {
+        cv::line(img, points_2d[i], points_2d[next], color, 2);
+      }
     }
     
     // 绘制顶面（顶点4-7）
     for (int i = 4; i < 8; i++) {
       int next = 4 + (i + 1) % 4;
-      cv::line(img, points_2d[i], points_2d[next], color, 2);
+      if (point_valid[i] && point_valid[next] && 
+          isPointInImage(points_2d[i], img) && isPointInImage(points_2d[next], img)) {
+        cv::line(img, points_2d[i], points_2d[next], color, 2);
+      }
     }
     
     // 绘制垂直边（连接底面和顶面）
     for (int i = 0; i < 4; i++) {
-      cv::line(img, points_2d[i], points_2d[i + 4], color, 2);
+      if (point_valid[i] && point_valid[i + 4] && 
+          isPointInImage(points_2d[i], img) && isPointInImage(points_2d[i + 4], img)) {
+        cv::line(img, points_2d[i], points_2d[i + 4], color, 2);
+      }
     }
     
-    // 在框上显示名称
-    cv::putText(img, box.name, points_2d[0], cv::FONT_HERSHEY_SIMPLEX, 
-                0.8, color, 2);
+    // 在框上显示名称（使用第一个有效点）
+    for (int i = 0; i < 8; i++) {
+      if (point_valid[i] && isPointInImage(points_2d[i], img)) {
+        cv::putText(img, box.name, points_2d[i], cv::FONT_HERSHEY_SIMPLEX, 
+                    0.6, color, 2);
+        break;
+      }
+    }
   }
+  
+  std::cout << "\n投影统计: " << valid_box_count << "/" << total_box_count << " 个框成功投影" << std::endl;
 }
 
 bool ManualCalibration(int key_input) {
@@ -379,14 +469,14 @@ bool ManualCalibration(int key_input) {
 }
 
 int main(int argc, char **argv) {
-  if (argc != 5 && argc != 6) {
+  if (argc != 4 && argc != 5) {
     cout << "Usage: ./run_lidar2camera <image_path> <pcd_path> "
-            "<intrinsic_json> <extrinsic_json> [box_json]"
+            "<intrinsic_json> <extrinsic_json> [frame_id]"
             "\nexample:\n\t"
-            "./bin/run_lidar2camera data/0.png data/0.pcd "
+            "./bin/run_lidar2camera data/0000/0000.png data/0000/0000.pcd "
             "data/center_camera-intrinsic.json "
             "data/top_center_lidar-to-center_camera-extrinsic.json "
-            "[data/box_parameters.json]"
+            "[0000]"
          << endl;
     return 0;
   }
@@ -396,21 +486,20 @@ int main(int argc, char **argv) {
   string intrinsic_json = argv[3];
   string extrinsic_json = argv[4];
   
-  // 加载3D框（如果提供了box_json参数）
-  std::vector<Box3D> boxes;
-  string box_json = "";
+  // 从图像路径中提取帧ID，或使用提供的参数
+  string frame_id = "";
   if (argc == 6) {
-    box_json = argv[5];
-    boxes = LoadBoxes(box_json);
+    frame_id = argv[5];
   } else {
-    // 尝试自动在相同目录下查找box_parameters.json
+    // 从图像路径中提取帧ID (例如: data/0000/0000.png -> 0000)
     boost::filesystem::path img_path(camera_path);
-    boost::filesystem::path box_path = img_path.parent_path() / "box_parameters.json";
-    if (boost::filesystem::exists(box_path)) {
-      box_json = box_path.string();
-      boxes = LoadBoxes(box_json);
-    }
+    frame_id = img_path.stem().string();  // 获取文件名（不含扩展名）
   }
+  
+  std::cout << "使用帧ID: " << frame_id << std::endl;
+  
+  // 加载3D框
+  std::vector<Box3D> boxes = LoadBoxes(frame_id);
   cv::Mat img = cv::imread(camera_path);
   std::cout << intrinsic_json << std::endl;
   pcl::PointCloud<pcl::PointXYZI>::Ptr cloud(
