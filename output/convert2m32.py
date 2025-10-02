@@ -17,12 +17,14 @@ def invert_matrices_in_json(input_file, output_file):
             inverse_matrix = np.linalg.inv(matrix_np)
             # 将结果转换为列表并更新
             data[key] = inverse_matrix.tolist()
+            print(f"Matrix for {key} has been saved to {output_file}")
         except np.linalg.LinAlgError:
             print(f"Matrix for {key} is not invertible.")
     
     # 写回 JSON 文件
     with open(output_file, 'w') as f:
         json.dump(data, f, indent=4)
+
 
 # 使用示例
 input_file = '32m2cameras.json'

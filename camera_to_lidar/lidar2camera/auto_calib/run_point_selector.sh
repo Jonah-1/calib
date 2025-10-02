@@ -21,7 +21,7 @@ if [ $# -lt 1 ]; then
 fi
 
 FRAME_ID=$1
-
+FRAME_ID=$(printf "%04d" $FRAME_ID)
 # 构建文件路径
 FRAME_DIR="data/${FRAME_ID}"
 IMAGE_PATH="${FRAME_DIR}/${FRAME_ID}.png"

@@ -20,14 +20,46 @@ def transfer(source_dir, target_dir):
     
     # 删除目标目录中的内容，但保留目录本身
     if target_path.exists():
+        print(f"处理目标目录: {target_path}")
+        
+        # 检查是否是manual目录
+        is_manual = "manual" in str(target_path)
+        print(f"是否为manual目录: {is_manual}")
+        
         for item in target_path.iterdir():
-            if (item.name == "initial_error.txt" and 
-                    item.parent.name == "auto"):
+            print(f"检查项目: {item.name}")
+            
+            # 对于manual目录，只删除data子目录下数字开头的文件夹，但保留boxs目录
+            if is_manual and item.name == "data" and item.is_dir():
+                print(f"处理data目录: {item}")
+                for data_item in item.iterdir():
+                    if data_item.is_dir() and data_item.name.isdigit():
+                        print(f"删除数字文件夹: {data_item}")
+                        shutil.rmtree(data_item)
+                    elif data_item.is_dir() and data_item.name == "boxs":
+                        print(f"保留boxs目录: {data_item}")
+                    else:
+                        print(f"保留其他目录/文件: {data_item}")
+                print(f"data目录处理完成，跳过删除")
+                continue
+            # 对于manual目录，保留boxs目录
+            elif is_manual and item.name == "boxs" and item.is_dir():
+                print(f"保留boxs目录: {item}")
+                continue
+            # 对于auto目录，保留initial_error.txt文件
+            elif (item.name == "initial_error.txt" and 
+                    "auto" in str(target_path)):
                     print(f"保留文件: {item}")
                     continue
-            if item.is_dir():
-                print(f"删除目录: {item}")
-                shutil.rmtree(item)
+            # 其他情况删除
+            else:
+                if item.is_dir():
+                    print(f"删除目录: {item}")
+                    shutil.rmtree(item)
+                else:
+                    print(f"删除文件: {item}")
+                    item.unlink()
+        
         print(f"成功清空目标目录内容: {target_path}")
 
     

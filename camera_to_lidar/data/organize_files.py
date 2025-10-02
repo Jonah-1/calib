@@ -70,16 +70,11 @@ def organize_files(camera_folders,sub_folders):
         for basename in basenames:
             targets[basename] = []  # 初始化列表
             for sub_folder in camera_sub_folders:
-                if sub_folder.endswith("masks"):
-                    print(Path(sub_folder))
-                    for file_path in Path(sub_folder).glob('*'):
-                        if(basename==os.path.basename(file_path)):
-                            targets[basename].append(file_path)
-                else:
-                    for file_path in Path(sub_folder).glob('*'):
-                        filename=os.path.basename(file_path)
-                        if(basename==os.path.splitext(filename)[0]):
-                            targets[basename].append(file_path)
+
+                for file_path in Path(sub_folder).glob('*'):
+                    filename=os.path.basename(file_path)
+                    if(basename==os.path.splitext(filename)[0]):
+                        targets[basename].append(file_path)
         #开始复制    
         for basename in basenames:
             save_auto_folder=os.path.join(auto_calib_dir,basename)
@@ -87,8 +82,9 @@ def organize_files(camera_folders,sub_folders):
             os.makedirs(save_auto_folder, exist_ok=True)
             os.makedirs(save_manual_folder, exist_ok=True)
             for file_path in targets[basename]:
+                # 跳过masks文件夹
                 if 'masks' in str(file_path):
-                    shutil.copytree(file_path, os.path.join(save_auto_folder, 'masks'))
+                    continue
                 else:
                     shutil.copy2(file_path, os.path.join(save_auto_folder, os.path.basename(file_path)))
                     shutil.copy2(file_path, os.path.join(save_manual_folder, os.path.basename(file_path)))

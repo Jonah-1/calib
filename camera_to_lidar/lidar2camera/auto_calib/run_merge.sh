@@ -21,6 +21,7 @@ if [ $# -lt 1 ]; then
 fi
 
 FRAME_ID=$1
+FRAME_ID=$(printf "%04d" $FRAME_ID)
 OUTPUT_FILE=${2:-"data/${FRAME_ID}/merged_data.json"}
 
 # 构建文件路径

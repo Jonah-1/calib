@@ -397,19 +397,19 @@ if __name__ == "__main__":
 
     camera_frame_selection = {
         'pinhole-front': {
-            'frames': [1, 2],
+            'frames': [0, 1],
         },
         'fisheye-front': {
-            'frames': [1, 2],
+            'frames': [0, 2],
         },
         'fisheye-left': {
-            'frames': [2,3],
+            'frames': [0,2],
         },
         'fisheye-right': {
-            'frames': [1,4],
+            'frames': [0,2],
         },
         'pinhole-back': {
-            'frames': [0, 2],
+            'frames': [0, 1],
         }
     }
 
