@@ -17,26 +17,24 @@ def update_camera_config(camera_config_path, param_files, input_dirs):
     # 遍历每个相机配置
     for i, (param_file, input_dir) in enumerate(zip(param_files, input_dirs)):
         # 获取内参
-        # if "pinhole-front" in input_dir: # Special case for pinhole-front
-        #     fx = 1910.3417311410
-        #     fy = 1910.3058674355
-        #     cx = 1917.7001038394
-        #     cy = 1081.4421265044
-        #     # 计算裁剪后的新内参
-        #     width = 3840
-        #     height = 2160
-        #     crop_width = width - 1920
-        #     crop_height = height - 1536
-        #     left = max(0, int(crop_width/2))
-        #     top = max(0, int(crop_height/2))
-        #     cx = cx - left
-        #     cy = cy - top
-        # else:
         internal_params = read_camera_parameters(param_file)
         fx = internal_params.get("FX")
         fy = internal_params.get("FY")
         cx = internal_params.get("CX")
         cy = internal_params.get("CY")
+
+        # 检查是否有去畸变后的内参信息
+        undistort_info_path = os.path.join(input_dir.replace("images", "undistorted"), "undistort_info.json")
+        if os.path.exists(undistort_info_path):
+            # 使用去畸变后的内参
+            with open(undistort_info_path, 'r') as f:
+                undistort_info = json.load(f)
+            new_camera_matrix = np.array(undistort_info["new_camera_matrix"])
+            fx = new_camera_matrix[0, 0]
+            fy = new_camera_matrix[1, 1]
+            cx = new_camera_matrix[0, 2]
+            cy = new_camera_matrix[1, 2]
+            print(f"使用去畸变后的内参: fx={fx:.2f}, fy={fy:.2f}, cx={cx:.2f}, cy={cy:.2f}")
 
         if "pinhole-front" in input_dir: 
             width=3840
@@ -44,6 +42,7 @@ def update_camera_config(camera_config_path, param_files, input_dirs):
         else:
             width=1920
             height=1536
+            
         # 构建单个相机配置 (移除外参)
         camera_entry = {
             "camera_internal": {
@@ -97,6 +96,73 @@ def read_camera_parameters(param_file):
                     params[key] = value
     
     return params
+
+def crop_image(image, cx, cy, crop_percent=1):
+    """从光学中心裁剪图像"""
+    width=3840
+    height=2160
+    
+    # 计算裁剪区域
+    crop_width = 1920  # 直接指定目标宽度
+    crop_height = 1536  # 直接指定目标高度
+    
+    # 计算裁剪区域的边界（从中心开始）
+    left = int((width - crop_width) / 2)
+    right = left + crop_width
+    top = int((height - crop_height) / 2)
+    bottom = top + crop_height
+    
+    # 裁剪图像
+    cropped = image[top:bottom, left:right]
+    # print(f"\n裁剪后的图像尺寸: {cropped.shape[1]}x{cropped.shape[0]}")
+    return cropped
+
+def calculate_new_camera_matrix(params, input_dir, crop_percent=1):
+    """计算裁剪后的相机内参矩阵"""
+    fx = params.get('FX')
+    fy = params.get('FY')
+    cx = params.get('CX')
+    cy = params.get('CY')
+    
+    # 读取一张图片来获取尺寸，支持jpg和png格式
+    input_path = Path(input_dir)
+    sample_image = next(chain(input_path.glob("*.jpg"), input_path.glob("*.png")), None)
+    if sample_image:
+        image = cv2.imread(str(sample_image))
+        if image is not None:
+            width=3840
+            height=2160
+
+            
+            # 计算裁剪区域
+            crop_width = width-1920
+            crop_height = height-1536
+            # 计算裁剪边界
+            left = max(0, int(cx - crop_width/2))
+            top = max(0, int(cy - crop_height/2))
+            
+            # 计算裁剪后的主点坐标
+            # 新的主点坐标需要减去裁剪的偏移量
+            new_cx = cx - left  # left是裁剪的起始x坐标
+            new_cy = cy - top   # top是裁剪的起始y坐标
+            
+            # 构建原始相机矩阵
+            camera_matrix = np.array([
+                [fx, 0, cx],
+                [0, fy, cy],
+                [0, 0, 1]
+            ])
+            
+            # 构建新的相机矩阵
+            new_camera_matrix = np.array([
+                [fx, 0, new_cx],
+                [0, fy, new_cy],
+                [0, 0, 1]
+            ])
+            
+            return camera_matrix, new_camera_matrix
+    
+    return None, None
 
 
 def undistort_fisheye_images(param_file, input_dir, output_dir, selection_mode='random', num_frames=3, camera_name=None, frame_selection_dict=None):
@@ -182,19 +248,28 @@ def undistort_fisheye_images(param_file, input_dir, output_dir, selection_mode='
         # 获取图像尺寸
         h, w = img.shape[:2]
         
-        # 计算新的相机矩阵
-        new_camera_matrix = camera_matrix.copy()
+        # 按照您提供的方法进行去畸变
+        DIM = (w, h)  # 图像尺寸
+        scale = 1.0  # 焦距缩放因子，1.0表示不缩放
+        
+        # 复制原始内参矩阵
+        Knew = camera_matrix.copy()
+        
+        # 如果需要缩放焦距
+        if scale != 1.0:
+            Knew[(0,1), (0,1)] = scale * Knew[(0,1), (0,1)]
+        
         
         # 使用OpenCV的鱼眼相机模型进行去畸变
         map1, map2 = cv2.fisheye.initUndistortRectifyMap(
-            camera_matrix, 
-            dist_coeffs, 
-            np.eye(3), 
-            new_camera_matrix, 
-            (w, h), 
+            camera_matrix,  # 原始内参
+            dist_coeffs,    # 畸变系数
+            np.eye(3),      # 旋转矩阵
+            Knew,           # 目标内参
+            DIM,            # 图像尺寸
             cv2.CV_16SC2
         )
-        undistorted_img = cv2.remap(img, map1, map2, interpolation=cv2.INTER_CUBIC, borderMode=cv2.BORDER_CONSTANT)
+        undistorted_img = cv2.remap(img, map1, map2, interpolation=cv2.INTER_LINEAR, borderMode=cv2.BORDER_CONSTANT)
         
         # 打印去畸变后的图像尺寸
         # print(f"去畸变后的图像尺寸: {undistorted_img.shape[1]}x{undistorted_img.shape[0]}")
@@ -205,74 +280,24 @@ def undistort_fisheye_images(param_file, input_dir, output_dir, selection_mode='
         
         # 保存去畸变后的图像
         cv2.imwrite(output_file, undistorted_img)
+        
+        # 保存去畸变后的内参信息（仅对第一张图片保存一次）
+        if image_file == image_files[0]:  # 只对第一张图片保存内参信息
+            undistort_info_path = os.path.join(output_dir, "undistort_info.json")
+            undistort_info = {
+                "original_camera_matrix": camera_matrix.tolist(),
+                "new_camera_matrix": Knew.tolist(),
+                "image_size": DIM,
+                "distortion_coeffs": dist_coeffs.tolist(),
+                "scale": scale,
+                "description": "鱼眼相机去畸变后的内参信息"
+            }
+            
+            with open(undistort_info_path, 'w') as f:
+                json.dump(undistort_info, f, indent=4)
+
+        
         print(f"已处理: {image_file}")
-
-def crop_image(image, cx, cy, crop_percent=1):
-    """从光学中心裁剪图像"""
-    width=3840
-    height=2160
-    
-    # 计算裁剪区域
-    crop_width = 1920  # 直接指定目标宽度
-    crop_height = 1536  # 直接指定目标高度
-    
-    # 计算裁剪区域的边界（从中心开始）
-    left = int((width - crop_width) / 2)
-    right = left + crop_width
-    top = int((height - crop_height) / 2)
-    bottom = top + crop_height
-    
-    # 裁剪图像
-    cropped = image[top:bottom, left:right]
-    # print(f"\n裁剪后的图像尺寸: {cropped.shape[1]}x{cropped.shape[0]}")
-    return cropped
-
-def calculate_new_camera_matrix(params, input_dir, crop_percent=1):
-    """计算裁剪后的相机内参矩阵"""
-    fx = params.get('FX')
-    fy = params.get('FY')
-    cx = params.get('CX')
-    cy = params.get('CY')
-    
-    # 读取一张图片来获取尺寸，支持jpg和png格式
-    input_path = Path(input_dir)
-    sample_image = next(chain(input_path.glob("*.jpg"), input_path.glob("*.png")), None)
-    if sample_image:
-        image = cv2.imread(str(sample_image))
-        if image is not None:
-            width=3840
-            height=2160
-
-            
-            # 计算裁剪区域
-            crop_width = width-1920
-            crop_height = height-1536
-            # 计算裁剪边界
-            left = max(0, int(cx - crop_width/2))
-            top = max(0, int(cy - crop_height/2))
-            
-            # 计算裁剪后的主点坐标
-            # 新的主点坐标需要减去裁剪的偏移量
-            new_cx = cx - left  # left是裁剪的起始x坐标
-            new_cy = cy - top   # top是裁剪的起始y坐标
-            
-            # 构建原始相机矩阵
-            camera_matrix = np.array([
-                [fx, 0, cx],
-                [0, fy, cy],
-                [0, 0, 1]
-            ])
-            
-            # 构建新的相机矩阵
-            new_camera_matrix = np.array([
-                [fx, 0, new_cx],
-                [0, fy, new_cy],
-                [0, 0, 1]
-            ])
-            
-            return camera_matrix, new_camera_matrix
-    
-    return None, None
 
 def process_fisheye_camera(param_file, input_dir, output_dir, selection_mode='random', num_frames=3, camera_name=None, frame_selection_dict=None):
     try:
@@ -288,7 +313,7 @@ def undistort_pinhole_image(image_path, params, input_dir):
     if img is None:
         raise ValueError(f"无法读取图像: {image_path}")
 
-    # 获取原始图像尺寸
+    # 获取原始图像尺寸undis
     h, w = img.shape[:2]
     
     # 构建相机矩阵
@@ -390,26 +415,25 @@ def parse_arguments():
                         default=['pinhole-back', 'pinhole-front', 'fisheye-front', 'fisheye-left', 'fisheye-right'],
                         help='指定要处理的相机 (默认: 处理所有相机)')
     return parser.parse_args()
-
 if __name__ == "__main__":
     # 解析命令行参数
     args = parse_arguments()
 
     camera_frame_selection = {
         'pinhole-front': {
-            'frames': [0, 1],
+            'frames': [0, 2],
         },
         'fisheye-front': {
-            'frames': [0, 2],
+            'frames': [0, 1],
         },
         'fisheye-left': {
             'frames': [0,2],
         },
         'fisheye-right': {
-            'frames': [0,2],
+            'frames': [0,1],
         },
         'pinhole-back': {
-            'frames': [0, 1],
+            'frames': [0, 2],
         }
     }
 

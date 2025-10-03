@@ -81,16 +81,16 @@ if __name__ == "__main__":
 
     camera_frame_selection = {
         'pinhole-front': {
-            'frames': [1, 2],
+            'frames': [0, 2],
         },
         'fisheye-front': {
-            'frames': [1, 2],
+            'frames': [0, 1],
         },
         'fisheye-left': {
-            'frames': [2,3],
+            'frames': [0,2],
         },
         'fisheye-right': {
-            'frames': [1,4],
+            'frames': [0,1],
         },
         'pinhole-back': {
             'frames': [0, 2],
@@ -98,34 +98,7 @@ if __name__ == "__main__":
     }
 ```
 
-### 2.3 生成掩码
-
-进入camera_to_lidar/data/segment-anything文件夹，首先编译
-
-```
-conda create -n seg python=3.8
-conda activate seg
-
-pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
-pip install -e .
-pip install opencv-python pycocotools matplotlib onnxruntime onnx
-```
-
-下载权重文件到当前文件夹目录,链接为：
-
-```
-链接: https://pan.baidu.com/s/1aJeCegG7I8UOaVgL5qczFQ?pwd=fhp9 提取码: fhp9 
-```
-
-运行代码，生成每个相机对应的文件夹对应的去畸变图片的掩码，并保存到对应的mask文件夹
-
-```
-python scripts/amg.py --checkpoint sam_vit_l_0b3195.pth --model-type vit_l --stability-score-thresh 0.9 --box-nms-thresh 0.4 --stability-score-offset 0.9 --points-per-batch 32
-```
-
-如果显存不够，就调小 --points-per-batch的值
-
-### 2.4 打包数据
+### 2.3 打包数据
 
 回到camera_to_lidar/data文件夹，运行程序获得每个相机对应mannua-calib和auto-calib文件夹，为后面标定作准备
 
@@ -148,7 +121,6 @@ data
 	├──images
 	├──auto-calib
 		├──0010
-			├──masks
 			├──0010.pcd
 			├──0010.png
 			├──calib.txt
@@ -169,7 +141,7 @@ data
 运行下列程序，针对不同的相机把上面准备好的auto-calib和mannual-calib数据分别送到自动标定和手动标定文件夹
 
 ```
- python transfer-files.py --sort pinhole-front
+python transfer-files.py --sort fisheye-left
 ```
 
 --sort 为要进行标定的相机名称
@@ -222,7 +194,6 @@ python update.py
 运行程序自动标定
 
 ```
-chmod +x auto-calib.sh #第一次使用才用输
 bash auto-calib.sh
 ```
 
@@ -235,7 +206,6 @@ bash auto-calib.sh
 在五个雷达到相机的外参矩阵计算好后，在output下依次运行下面的程序
 
 ```
-python convert2lidar.py
 python convert2m32.py
 ```
 
