@@ -172,11 +172,29 @@ docker run -it \
 xiaokyan/opencalib:v1
 ```
 
-运行程序开始手工标定
+先进入camera_to_lidar/lidar2camera/auto_calib文件夹，运行下列程序选择图片的2d特征点，同时打开cloudcompare选择对应的三维点
 
 ```
-chmod +x manual-calib.sh #第一次使用才用输
-./manual-calib.sh 97
+./run_point_selector 0
+```
+
+其中0代表所选的帧数，2d点和3d点位置保存在data/所选帧数文件夹下，运行下列程序获得合并信息后的文件
+
+```
+./run_merge.sh 0
+```
+
+接着运行下列程序获得初始标定矩阵，并更新到所有待标矩阵的外参文件
+
+```
+./run_calibrate.sh 0
+python update.py
+```
+
+然后运行程序开始手工标定
+
+```
+./manual-calib.sh 0
 ```
 
 命令中的数字代表第几帧，实际运行时全部替换为实际选中的帧数，运行完成后camera_to_lidar/lidar2camera/manual_calib/calibration_0.txt中的矩阵就是粗标定好的激光雷达到相机的矩阵，运行下面的程序把它更新到所有数据的初始外参程序中
@@ -194,10 +212,11 @@ python update.py
 运行程序自动标定
 
 ```
-bash auto-calib.sh
+./run_calibrate.sh 0 --use-tr-initial
+python update.py
 ```
 
-查看效果，第一次标可能效果不好，可以重复手动标以及自动标多次，直到满意为止，标完后也可以在后续标注平台根据实际3d标注框的偏差回到这里来改标定参数继续改进
+其中 --use-tr-initial代表使用已经标好的矩阵作为初始化矩阵进行标定
 
 ## 4数据保存
 
