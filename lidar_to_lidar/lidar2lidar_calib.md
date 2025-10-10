@@ -120,7 +120,7 @@ cmake .. && make
 python get_final_matrix.py
 ```
 
-即可获得最终标定好的对应激光雷达到顶部激光雷达的变换矩阵，将对应矩阵保存到  *lidar2m32 .json*中
+即可获得最终标定好的对应激光雷达到顶部激光雷达的变换矩阵，将对应矩阵保存到  根目录下output/lidar2m32.json中
 
 然后继续对剩下的front文件夹重复上述操作
 
