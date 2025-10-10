@@ -146,7 +146,7 @@ python transfer-files.py --sort fisheye-left
 
 --sort 为要进行标定的相机名称
 
-### 3.1手动标定
+### 3.1标定代码编译
 
 进入camera_to_lidar/lidar2camera/manual_calib文件夹，如果需要重新编译
 
@@ -172,13 +172,19 @@ docker run -it \
 xiaokyan/opencalib:v1
 ```
 
-先进入camera_to_lidar/lidar2camera/auto_calib文件夹，运行下列程序选择图片的2d特征点，同时打开cloudcompare选择对应的三维点
+同理进入camera_to_lidar/lidar2camera/auto_calib文件夹进行编译
+
+
+
+### 3.2 标定流程
+
+1.先进入camera_to_lidar/lidar2camera/auto_calib文件夹，运行下列程序选择图片的2d特征点，同时打开cloudcompare选择对应的三维点
 
 ```
-./run_point_selector 0
+./run_point_selector.sh 0
 ```
 
-其中0代表所选的帧数，2d点和3d点位置保存在data/所选帧数文件夹下，运行下列程序获得合并信息后的文件
+其中0代表所选的帧数，2d点保存在data/所选帧数文件夹/image.json下，3d点位置保存在data/所选帧数文件夹/lidar.txt下，运行下列程序获得合并信息后的文件
 
 ```
 ./run_merge.sh 0
@@ -191,25 +197,14 @@ xiaokyan/opencalib:v1
 python update.py
 ```
 
-然后运行程序开始手工标定
+2.然后进入camera_to_lidar/lidar2camera/manual_calib文件夹运行程序开始手工标定,并更新到所有待标矩阵的外参文件
 
 ```
 ./manual-calib.sh 0
-```
-
-命令中的数字代表第几帧，实际运行时全部替换为实际选中的帧数，运行完成后camera_to_lidar/lidar2camera/manual_calib/calibration_0.txt中的矩阵就是粗标定好的激光雷达到相机的矩阵，运行下面的程序把它更新到所有数据的初始外参程序中
-
-```
 python update.py
 ```
 
-### 3.2 自动标定
-
-进入camera_to_lidar/lidar2camera/auto_calib文件夹，
-
-如果需要编译，操作如上
-
-运行程序自动标定
+3.然后进入auto_calib文件夹基于已有矩阵进行优化标定
 
 ```
 ./run_calibrate.sh 0 --use-tr-initial
@@ -217,6 +212,8 @@ python update.py
 ```
 
 其中 --use-tr-initial代表使用已经标好的矩阵作为初始化矩阵进行标定
+
+然后重复2，3不断优化至合适
 
 ## 4数据保存
 
